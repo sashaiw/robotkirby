@@ -6,7 +6,7 @@ import filehandler as fh
 
 try:
     with open('token.txt', 'r') as tokenfile:
-        token = tokenfile.read()
+        token = tokenfile.read().rstrip('\n')
 except FileNotFoundError:
     print('Please place your token in a file titled "token.txt"')
 
