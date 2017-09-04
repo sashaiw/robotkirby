@@ -1,9 +1,14 @@
 import discord
 from discord.ext import commands
 import logging
-from config import settings
 from cogs.utils import checks
 import filehandler as fh
+
+try:
+    with open('token.txt', 'r') as tokenfile:
+        token = tokenfile.read()
+except FileNotFoundError:
+    print('Please place your token in a file titled "token.txt"')
 
 logger = logging.getLogger('kirby')
 logger.setLevel(logging.INFO)
@@ -40,4 +45,4 @@ if __name__ == "__main__":
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
 
-    bot.run(settings.token)
+    bot.run(token)
