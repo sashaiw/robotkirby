@@ -12,6 +12,8 @@ class Emoji:
             for c in message.content:
                 if c not in emoji.UNICODE_EMOJI and c not in (' ', '\n'):
                     detected = True
+            if message.attachments:
+                detected=True
 
             print(detected)
 
