@@ -1,8 +1,5 @@
-import discord
 from discord.ext import commands
 import logging
-from cogs.utils import checks
-import filehandler as fh
 
 try:
     with open('token.txt', 'r') as tokenfile:
@@ -28,7 +25,8 @@ startup_extensions = ["cogs.hello",
                       "cogs.arg",
                       "cogs.invite",
                       "cogs.giftcard",
-                      "cogs.trumptweets"]
+                      "cogs.trumptweets",
+                      "cogs.emoji"]
 
 bot = commands.Bot(command_prefix='!', description=description)
 

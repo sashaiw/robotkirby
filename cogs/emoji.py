@@ -10,7 +10,7 @@ class Emoji:
             print(message.content)
             detected = False
             for c in message.content:
-                if not c in emoji.UNICODE_EMOJI and not c in (' ', '\n'):
+                if c not in emoji.UNICODE_EMOJI and c not in (' ', '\n'):
                     detected = True
 
             print(detected)
@@ -18,6 +18,7 @@ class Emoji:
             if detected:
                 print('NON-EMOJI DETECTED')
                 await self.bot.delete_message(message)
+
 
 def setup(bot):
     bot.add_cog(Emoji(bot))

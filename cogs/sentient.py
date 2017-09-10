@@ -1,11 +1,4 @@
-import discord
-import random
-import time
 import re
-import os
-import filehandler as fh
-import codecs
-import multiprocessing as mp
 from discord.ext import commands
 import markovify
 from cogs.utils import checks

@@ -1,10 +1,6 @@
-import discord
 import random
 import asyncio
-import filehandler as fh
 from discord.ext import commands
-from cogs.utils import checks
-
 
 
 class Tribal:
