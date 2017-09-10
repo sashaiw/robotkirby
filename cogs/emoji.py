@@ -10,7 +10,7 @@ class Emoji:
             print(message.content)
             detected = False
             for c in message.content:
-                if c not in emoji.UNICODE_EMOJI and c not in (' ', '\n'):
+                if c not in emoji.UNICODE_EMOJI and c not in emoji.UNICODE_EMOJI_ALIAS and c not in (' ', '\n'):
                     detected = True
 
             if message.attachments:
