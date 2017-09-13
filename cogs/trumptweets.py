@@ -31,8 +31,7 @@ class TrumpTweets:
                             markovfile.write(tweet["text"] + "\n")
             markovfile.close()
             os.rename("db/markov/trump.txt.swp", "db/markov/trump.txt")
-            print("Updated tweets!")
-            
+
             await asyncio.sleep(3600)
 
 def setup(bot):
