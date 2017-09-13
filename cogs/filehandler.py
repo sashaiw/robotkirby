@@ -45,7 +45,6 @@ def remove(server,f,s):
             for line in fa:
                 if line != s:
                     f.write(line + "\n")
-                    print(line)
 
         f = open(filepath)
         fa = [item.rstrip("\n") for item in f.readlines()]

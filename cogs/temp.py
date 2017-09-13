@@ -41,7 +41,6 @@ class Temp:
             everyone = discord.PermissionOverwrite(connect=False)
             self.channels[ctx.message.author.id] = await self.bot.create_channel(ctx.message.server, channelname, (ctx.message.server.default_role, everyone), type=discord.ChannelType.voice)
 
-            print(self.channels[ctx.message.author.id].id)
             fh.write("all","tempchannels",self.channels[ctx.message.author.id].id)
             await self.bot.move_member(ctx.message.author,self.channels[ctx.message.author.id])
             await self.bot.say("```Created channel with name \"" + channelname + "\"```")
@@ -52,7 +51,6 @@ class Temp:
     async def _delete(self,ctx):
         if ctx.message.author.id in self.channels:
             if ctx.message.server.afk_channel:
-                print("MOVING")
                 for member in self.channels[ctx.message.author.id].voice_members:
                     await self.bot.move_member(member,ctx.message.server.afk_channel)
             fh.remove("all","tempchannels",self.channels[ctx.message.author.id].id)
