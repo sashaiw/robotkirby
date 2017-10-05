@@ -54,7 +54,7 @@ class Sentient:
             if sentence is None:
                 await self.bot.say("`INSUFFICIENT DATA`")
             else:
-                sentence = re.sub("<@!?[0-9]{16,32}>|@everyone", "", sentence)
+                sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
                 await self.bot.say(sentence)
 
 def setup(bot):
