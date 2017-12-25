@@ -28,7 +28,7 @@ startup_extensions = ["cogs.hello",
                       "cogs.trumptweets",
                       "cogs.emoji"]
 
-bot = commands.Bot(command_prefix='!', description=description)
+bot = commands.Bot(command_prefix='~', description=description)
 
 
 @bot.event
