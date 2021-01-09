@@ -16,17 +16,18 @@ logger.addHandler(handler)
 description = '''<('.')> ROBOT KIRBY 2.0 BETA'''
 
 startup_extensions = ["cogs.hello",
-                      "cogs.insult",
-                      "cogs.spam",
-                      "cogs.meme",
+                      # "cogs.insult",
+                      # "cogs.spam",
+                      # "cogs.meme",
                       "cogs.sentient",
                       "cogs.markovlogger",
-                      "cogs.temp",
-                      "cogs.arg",
-                      "cogs.invite",
-                      "cogs.giftcard",
-                      "cogs.trumptweets",
-                      "cogs.emoji"]
+                      # "cogs.temp",
+                      # "cogs.arg",
+                      "cogs.invite"
+                      # "cogs.giftcard",
+                      # "cogs.trumptweets",
+                      # "cogs.emoji"
+                      ]
 
 bot = commands.Bot(command_prefix='!', description=description)
 

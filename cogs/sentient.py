@@ -18,20 +18,19 @@ class User:
         self.last_user = current_user
 
 
-class Sentient:
+class Sentient(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.users = {}
 
     @commands.command(pass_context=True, description="Uses Markov chains to emulate users. Pass mention as arg.")
-    @checks.is_licensed()
     async def sentient(self, ctx, arg : str):
         try:
             mentionid = ctx.message.mentions[0].id
         except IndexError:
             mentionid = arg
         try:
-            with open("db/markov/" + mentionid + ".txt") as f:
+            with open(f"db/markov/{mentionid}.txt") as f:
                 text = f.read()
         except FileNotFoundError:
             text = ""
@@ -58,10 +57,10 @@ class Sentient:
 
         sentence = model_combo.make_sentence(tries=100)
         if sentence is None:
-            await self.bot.say("`INSUFFICIENT DATA`")
+            await ctx.send("`INSUFFICIENT DATA`")
         else:
             sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
-            await self.bot.say(sentence)
+            await ctx.send(sentence)
 
 def setup(bot):
     bot.add_cog(Sentient(bot))

@@ -7,7 +7,7 @@ from cogs.utils import checks
 
 
 
-class Meme:
+class Meme(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -16,7 +16,7 @@ class Meme:
     async def meme(self, ctx):
         if ctx.invoked_subcommand is None:
             try:
-                self.meme = random.choice(fh.read(ctx.message.server.id,"memes")).rstrip("\n")
+                self.meme = random.choice(fh.read(ctx.message.guild.id, "memes")).rstrip("\n")
                 await self.bot.say(self.meme)
             except TypeError:
                 await self.bot.say("Looks like I don't have any memes on file for your server. You can add memes with !meme add as long as you are a licensed memer.")
@@ -26,8 +26,8 @@ class Meme:
         link = re.match("https?://i?.?imgur.com/([a-zA-Z0-9]{5,7}.(jpg|png|gif|webm))", link)
         if link:
             link = "http://i.imgur.com/" + link.group(1)
-            if fh.write(ctx.message.server.id,"memes", link):
-                msg = "Thank you very much. There are now " + str(len(fh.read(ctx.message.server.id,"memes"))) + " memes in the meme database."
+            if fh.write(ctx.message.guild.id,"memes", link):
+                msg = "Thank you very much. There are now " + str(len(fh.read(ctx.message.guild.id,"memes"))) + " memes in the meme database."
                 await self.bot.say(msg)
             else:
                 await self.bot.say("Looks like this meme is already in my database. Thanks anyway!")
@@ -41,27 +41,27 @@ class Meme:
             mentionid = ctx.message.mentions[0].id
         except IndexError:
             mentionid = arg
-        if fh.write(ctx.message.server.id,"licenses",mentionid):
+        if fh.write(ctx.message.guild.id,"licenses",mentionid):
             await self.bot.say("`Adding user with ID: " + mentionid + "`")
         else:
             await self.bot.say("`A user already exists with id: " + mentionid + "`")
 
-    @commands.command(name='revoke', pass_context = True, description = "Revokes a meme license. Admin required.")
+    @commands.command(name='revoke', pass_context=True, description="Revokes a meme license. Admin required.")
     @checks.is_admin()
-    async def _revoke(self, ctx, user : str):
+    async def _revoke(self, ctx, user: str):
         try:
             mentionid = ctx.message.mentions[0].id
         except IndexError:
             mentionid = arg
-        if fh.remove(ctx.message.server.id,"licenses",mentionid):
+        if fh.remove(ctx.message.guild.id,"licenses",mentionid):
             await self.bot.say("`Removing user with ID: " + mentionid + "`")
         else:
             await self.bot.say("`No user with id: " + mentionid + "`")
 
-    @meme.command(name='remove', pass_context = True, description = "Removes a meme. Admin required.")
+    @meme.command(name='remove', pass_context=True, description="Removes a meme. Admin required.")
     @checks.is_admin()
     async def _remove(self, ctx, link : str):
-        fh.remove(ctx.message.server.id,"memes",link)
+        fh.remove(ctx.message.guild.id,"memes",link)
         await self.bot.say("`Removing meme.`")
 
 def setup(bot):

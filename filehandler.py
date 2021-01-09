@@ -1,20 +1,20 @@
 import os
 
-def write(server,f,s):
 
-    filepath = "db/" + server + "/" + f + ".txt"
+def write(server,f,s):
+    filepath = f"db/{server}/{f}.txt"
     print(filepath)
 
     if not os.path.exists("db/" + server):
         os.makedirs("db/" + server)
 
     if not os.path.exists(filepath):
-        open(filepath,"a").close()
+        open(filepath, "a").close()
 
     f = open(filepath)
     fa = [item.rstrip("\n") for item in f.readlines()]
     if s not in fa:
-        f = open(filepath,"a")
+        f = open(filepath, "a")
         f.write(s + "\n")
         f = open(filepath)
         fa = [item.rstrip("\n") for item in f.readlines()]
@@ -22,9 +22,9 @@ def write(server,f,s):
     else:
         return False
 
-def remove(server,f,s):
 
-    filepath = "db/" + server + "/" + f + ".txt"
+def remove(server,f,s):
+    filepath = f"db/{server}/{f}.txt"
 
     if os.path.exists(filepath):
         f = open(filepath)
@@ -43,9 +43,8 @@ def remove(server,f,s):
         return False
 
 
-def read(server,f):
-
-    filepath = "db/" + server + "/" + f + ".txt"
+def read(server, f):
+    filepath = f"db/{server}/{f}.txt"
 
     if os.path.exists(filepath):
         f = open(filepath)
@@ -57,8 +56,9 @@ def read(server,f):
     else:
         return False
 
-def kill(server,f):
-    filepath = "db/" + server + "/" + f + ".txt"
+
+def kill(server, f):
+    filepath = f"db/{server}/{f}.txt"
 
     if os.path.exists(filepath):
         os.remove(filepath)
