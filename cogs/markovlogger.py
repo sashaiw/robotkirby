@@ -9,7 +9,7 @@ class Markovlogger(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         blacklist = ("171290851232710657", "171413531915190272", "240522682125254656")
-        prefixes = ("!", "-", "~")
+        prefixes = ("!", "-", "~", "c!")
         if message.author.id not in blacklist and not message.content.startswith(prefixes):
             fh.write("markov", message.author.id, message.content)
 
