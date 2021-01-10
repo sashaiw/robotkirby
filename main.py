@@ -21,6 +21,7 @@ startup_extensions = ["cogs.hello",
                       # "cogs.meme",
                       "cogs.sentient",
                       "cogs.markovlogger",
+                      "cogs.optin",
                       # "cogs.temp",
                       # "cogs.arg",
                       "cogs.invite"

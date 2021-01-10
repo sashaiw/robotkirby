@@ -1,6 +1,7 @@
 import re
 from discord.ext import commands
 import markovify
+import discord
 from cogs.utils import checks
 
 
@@ -25,42 +26,47 @@ class Sentient(commands.Cog):
 
     @commands.command(pass_context=True, description="Uses Markov chains to emulate users. Pass mention as arg.")
     async def sentient(self, ctx, arg : str):
-        try:
-            mentionid = ctx.message.mentions[0].id
-        except IndexError:
-            mentionid = arg
-        try:
-            with open(f"db/markov/{mentionid}.txt") as f:
-                text = f.read()
-        except FileNotFoundError:
-            text = ""
+        role = discord.utils.get(ctx.message.author.guild.roles, name='Robot Kirby subject')
+        if ctx.message.author.roles is not None and role in ctx.message.author.roles:
+            try:
+                mentionid = ctx.message.mentions[0].id
+            except IndexError:
+                mentionid = arg
+            try:
+                with open(f"db/markov/{mentionid}.txt") as f:
+                    text = f.read()
+            except FileNotFoundError:
+                text = ""
 
-        with open("db/markov/creepy.txt") as f:
-            creepy_text = f.read()
+            with open("db/markov/creepy.txt") as f:
+                creepy_text = f.read()
 
-        if ctx.message.author.id not in self.users:
-            self.users[ctx.message.author.id] = User(mentionid)
+            if ctx.message.author.id not in self.users:
+                self.users[ctx.message.author.id] = User(mentionid)
 
-        self.users[ctx.message.author.id].inc_creep(0.2, mentionid)
+            self.users[ctx.message.author.id].inc_creep(0.2, mentionid)
 
-        #await self.bot.say("`Current creep factor: " + str(self.users[ctx.message.author.id].creep_factor) + "`")
+            #await self.bot.say("`Current creep factor: " + str(self.users[ctx.message.author.id].creep_factor) + "`")
 
-        if self.users[ctx.message.author.id].creep_factor > 2:
-            creep_weight = self.users[ctx.message.author.id].creep_factor
+            if self.users[ctx.message.author.id].creep_factor > 2:
+                creep_weight = self.users[ctx.message.author.id].creep_factor
+            else:
+                creep_weight = 0
+
+            model = markovify.NewlineText(text)
+            creepy_model = markovify.NewlineText(creepy_text)
+
+            model_combo = markovify.combine([model, creepy_model], [1, creep_weight])
+
+            sentence = model_combo.make_sentence(tries=100)
+            if sentence is None:
+                await ctx.send("`INSUFFICIENT DATA`")
+            else:
+                sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
+                await ctx.send(sentence)
         else:
-            creep_weight = 0
-
-        model = markovify.NewlineText(text)
-        creepy_model = markovify.NewlineText(creepy_text)
-
-        model_combo = markovify.combine([model, creepy_model], [1, creep_weight])
-
-        sentence = model_combo.make_sentence(tries=100)
-        if sentence is None:
-            await ctx.send("`INSUFFICIENT DATA`")
-        else:
-            sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
-            await ctx.send(sentence)
+            await ctx.send('You have not opted in to data collection and are not authorized to use this command. '
+                           'Use `!optin` to opt in.')
 
 def setup(bot):
     bot.add_cog(Sentient(bot))
