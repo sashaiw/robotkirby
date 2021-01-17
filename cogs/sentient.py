@@ -30,12 +30,11 @@ class Sentient(commands.Cog):
         if ctx.message.author.roles is not None and role in ctx.message.author.roles:
             prefix = ''
             try:
-                if ctx.message.author.nick is not None:
-                    prefix = f'**{ctx.message.author.nick}: **'
-                else:
-                    prefix = f'**{ctx.message.author.name}: **'
-
                 mentionid = ctx.message.mentions[0].id
+                if ctx.message.mentions[0].nick is not None:
+                    prefix = f'**{ctx.message.mentions[0].nick}: **'
+                else:
+                    prefix = f'**{ctx.message.mentions[0].name}: **'
             except IndexError:
                 mentionid = arg
 
