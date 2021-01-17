@@ -32,6 +32,7 @@ class Sentient(commands.Cog):
                 mentionid = ctx.message.mentions[0].id
             except IndexError:
                 mentionid = arg
+
             try:
                 with open(f"db/markov/{mentionid}.txt") as f:
                     text = f.read()
@@ -44,7 +45,7 @@ class Sentient(commands.Cog):
             if ctx.message.author.id not in self.users:
                 self.users[ctx.message.author.id] = User(mentionid)
 
-            self.users[ctx.message.author.id].inc_creep(0.2, mentionid)
+            self.users[ctx.message.author.id].inc_creep(0.05, mentionid)
 
             #await self.bot.say("`Current creep factor: " + str(self.users[ctx.message.author.id].creep_factor) + "`")
 
@@ -63,6 +64,7 @@ class Sentient(commands.Cog):
                 await ctx.send("`INSUFFICIENT DATA`")
             else:
                 sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
+
                 await ctx.send(sentence)
         else:
             await ctx.send('You have not opted in to data collection and are not authorized to use this command. '
