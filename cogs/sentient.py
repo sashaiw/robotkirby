@@ -28,7 +28,13 @@ class Sentient(commands.Cog):
     async def sentient(self, ctx, arg : str):
         role = discord.utils.get(ctx.message.author.guild.roles, name='Robot Kirby subject')
         if ctx.message.author.roles is not None and role in ctx.message.author.roles:
+            prefix = ''
             try:
+                if ctx.message.author.nick is not None:
+                    prefix = f'**{ctx.message.author.nick}: **'
+                else:
+                    prefix = f'**{ctx.message.author.name}: **'
+
                 mentionid = ctx.message.mentions[0].id
             except IndexError:
                 mentionid = arg
@@ -65,7 +71,7 @@ class Sentient(commands.Cog):
             else:
                 sentence = re.sub("<@!?[0-9]{16,32}>|@everyone|https?:\/\/discord.* ?", "", sentence)
 
-                await ctx.send(sentence)
+                await ctx.send(prefix + sentence)
         else:
             await ctx.send('You have not opted in to data collection and are not authorized to use this command. '
                            'Use `!optin` to opt in.')
