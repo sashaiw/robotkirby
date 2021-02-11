@@ -16,6 +16,9 @@ class Markovlogger(commands.Cog):
             if message.author.id not in blacklist and not message.content.startswith(prefixes):
                 fh.write("markov", message.author.id, message.content)
 
+        if message.channel.id == 808511506442485801:
+            fh.write("markov", "cubemoji", message.content)
+
 
 def setup(bot):
     bot.add_cog(Markovlogger(bot))
