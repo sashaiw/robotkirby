@@ -25,7 +25,7 @@ class Sentient(commands.Cog):
         self.users = {}
 
     @commands.command(pass_context=True, description="Uses Markov chains to emulate users. Pass mention as arg.")
-    async def sentient(self, ctx, arg : str):
+    async def sentient(self, ctx, arg: str):
         role = discord.utils.get(ctx.message.author.guild.roles, name='Robot Kirby subject')
         if ctx.message.author.roles is not None and role in ctx.message.author.roles:
             prefix = ''
