@@ -1,2 +1,5 @@
-# Robot Kirby
-## A shitty Discord chatbot with too many inside jokes
+### Robot Kirby
+
+```
+docker run -e DISCORD_TOKEN='your_token'
+```
