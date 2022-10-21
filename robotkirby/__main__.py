@@ -1,10 +1,11 @@
-import os
+import hikari
+from robotkirby.bot import build_bot
 
-from bot import build_bot
 
 # if os.name != "nt":
 #     import uvloop
 #     uvloop.install()
 
 if __name__ == '__main__':
-    build_bot().run()
+    bot = build_bot()
+    bot.run()
