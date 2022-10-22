@@ -53,7 +53,7 @@ class Database:
         )
 
     def check_read_permission(self, member: hikari.User):
-        return self.permissions.find_one({'_id': member.id})['read_messages']
+        return self.permissions.find_one({'_id': member.id})['read_messages'] or False
 
     def delete_by_user(self, member: hikari.User):
         deletion = self.messages.delete_many({'author': member.id})
