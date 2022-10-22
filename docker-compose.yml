@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  kirby:
+    build: .
+    container_name: kirby
+    env_file: .env
+
+  kirby_db:
+    image: mongo:latest
+    container_name: kirby_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: kirby
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/kirby/data:/data/db
