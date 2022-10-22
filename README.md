@@ -2,9 +2,9 @@
 Robot Kirby is a Discord bot that can imitate specific users, channels, or servers, based on a Markov chain model.
 Users must opt in for their data to be collected using the `/opt in` command.
 
-Robot Kirby uses [https://github.com/hikari-py/hikari](Hikari) and [https://github.com/FasterSpeeding/Tanjun](Tanjun)
-for interacting with the Discord API, [https://www.mongodb.com/](MongoDB) as a database, and 
-[https://github.com/jsvine/markovify](Markovify) for the Markov chain model.
+Robot Kirby uses [Hikari](https://github.com/hikari-py/hikari) and [Tanjun](https://github.com/FasterSpeeding/Tanjun)
+for interacting with the Discord API, [MongoDB](https://www.mongodb.com/) as a database, and 
+[Markovify](https://github.com/jsvine/markovify) for the Markov chain model.
 
 ## How to run
 
