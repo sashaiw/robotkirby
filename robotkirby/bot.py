@@ -25,6 +25,9 @@ def make_client(bot: hikari.GatewayBot) -> tanjun.Client:
 
     client.load_modules('robotkirby.plugins.utilities')
     client.load_modules('robotkirby.plugins.log_message')
+    client.load_modules('robotkirby.plugins.sentient')
+    client.load_modules('robotkirby.plugins.optin')
+    client.load_modules('robotkirby.plugins.delete')
 
     return client
 

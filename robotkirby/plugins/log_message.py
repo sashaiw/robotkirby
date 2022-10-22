@@ -13,11 +13,8 @@ async def on_message(
     if event.is_bot or not event.content:
         return
 
-    db.log_message(
-        content=event.content,
-        author=event.author_id,
-        guild=event.guild_id
-    )
+    if db.check_read_permission(event.author):
+        db.log_message(event)
 
 
 @tanjun.as_loader

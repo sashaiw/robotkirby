@@ -1,2 +1,4 @@
 hikari
 hikari-tanjun
+pymongo
+markovify
