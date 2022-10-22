@@ -6,7 +6,7 @@ services:
     env_file: .env
 
   kirby_db:
-    image: mongo:latest
+    image: mongo:4.4.17
     container_name: kirby_db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
