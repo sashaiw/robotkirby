@@ -4,10 +4,12 @@ services:
     build: .
     container_name: kirby
     env_file: .env
+    restart: always
 
   kirby_db:
     image: mongo:4.4.17
     container_name: kirby_db
+    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: kirby
