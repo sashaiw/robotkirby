@@ -15,6 +15,7 @@ class Database:
             event: hikari.GuildMessageCreateEvent
     ) -> None:
         message = {
+            '_id': event.message_id,
             'author': event.author_id,
             'time': datetime.datetime.utcnow(),
             'channel': event.channel_id,
