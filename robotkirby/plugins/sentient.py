@@ -25,7 +25,7 @@ async def sentient(
 
     match (member, channel):
         case (None, None):
-            prefix_str = ctx.get_guild().name
+            prefix_str = f'**{ctx.get_guild().name}**'
         case (hikari.Member(), None):
             prefix_str = f'{member.mention}'
         case (None, hikari.InteractionChannel()):
