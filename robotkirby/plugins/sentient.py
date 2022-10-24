@@ -23,6 +23,12 @@ async def sentient(
         channel=channel
     )
 
+    if not db.check_read_permission(ctx.author):
+        await(ctx.respond('In order to use Robot Kirby, please opt in to data collection using the `/opt in` command. '
+                          'This will allow me to collect your messages so that I can build sentences from your data. '
+                          ':heart:'))
+        return
+
     match (member, channel):
         case (None, None):
             prefix_str = f'**{ctx.get_guild().name}**'
@@ -34,6 +40,7 @@ async def sentient(
             prefix_str = f'{member.mention} in {channel.mention}'
         case _:
             await ctx.respond(f"Something is broken about this query.")
+            return
 
     sentence = None
     if messages is not None and len(messages) > 0:
