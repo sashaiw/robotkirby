@@ -23,15 +23,27 @@ async def sentient(
         channel=channel
     )
 
+    match (member, channel):
+        case (None, None):
+            prefix_str = ctx.get_guild().name
+        case (hikari.Member(), None):
+            prefix_str = f'**{member.display_name}**'
+        case (None, hikari.InteractionChannel()):
+            prefix_str = f'{channel.mention}'
+        case (hikari.Member(), hikari.InteractionChannel()):
+            prefix_str = f'**{member.display_name}** in {channel.mention}'
+        case _:
+            await ctx.respond(f"Something is broken about this query.")
+
     sentence = None
     if messages is not None and len(messages) > 0:
         model = markovify.Text(messages)
         sentence = model.make_sentence()
 
     if sentence is not None:
-        await ctx.respond(sentence)
+        await ctx.respond(f"{prefix_str}:\n{sentence}")
     else:
-        await ctx.respond("I don't have enough data for this filter.")
+        await ctx.respond(f"I don't have enough data for {prefix_str}.")
 
 
 @tanjun.as_loader
