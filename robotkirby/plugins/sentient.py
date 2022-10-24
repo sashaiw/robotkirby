@@ -27,11 +27,11 @@ async def sentient(
         case (None, None):
             prefix_str = ctx.get_guild().name
         case (hikari.Member(), None):
-            prefix_str = f'**{member.display_name}**'
+            prefix_str = f'{member.mention}'
         case (None, hikari.InteractionChannel()):
             prefix_str = f'{channel.mention}'
         case (hikari.Member(), hikari.InteractionChannel()):
-            prefix_str = f'**{member.display_name}** in {channel.mention}'
+            prefix_str = f'{member.mention} in {channel.mention}'
         case _:
             await ctx.respond(f"Something is broken about this query.")
 
