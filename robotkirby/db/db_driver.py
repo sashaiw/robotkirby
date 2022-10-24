@@ -10,6 +10,15 @@ class Database:
         self.messages = self.db.messages
         self.permissions = self.db.permissions
 
+        # create compound index with `guild` as the prefix since we will always include this
+        # efficient for [guild], [guild, author], [guild, author, channel]
+        # less efficient at [guild, channel]
+        self.messages.create_index([('guild', 1), ('author', 1), ('channel', 1)])
+
+        # create index for [guild, channel] to address the previously mentioned limitation
+        # the optimizer doesn't use this one I think, IDK why
+        self.messages.create_index([('guild', 1), ('channel', 1)])
+
     def log_message(
             self,
             event: hikari.GuildMessageCreateEvent
