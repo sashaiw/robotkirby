@@ -42,7 +42,7 @@ async def sentient(
             await ctx.respond(f"Something is broken about this query.")
             return
 
-    await ctx.respond("Thinking...")
+    await ctx.respond(f"Thinking about {prefix_str}...")
 
     sentence = None
     if messages is not None and len(messages) > 0:

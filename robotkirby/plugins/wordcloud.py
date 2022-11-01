@@ -48,7 +48,7 @@ async def wordcloud(
             await ctx.respond(f"Something is broken about this query.")
             return
 
-    await ctx.respond("Thinking...")
+    await ctx.respond(f"Thinking about {prefix_str}...")
 
     if messages is not None:
         text = ' '.join(messages)
