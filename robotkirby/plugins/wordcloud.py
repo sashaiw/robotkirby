@@ -48,6 +48,8 @@ async def wordcloud(
             await ctx.respond(f"Something is broken about this query.")
             return
 
+    await ctx.respond("Thinking...")
+
     if messages is not None:
         text = ' '.join(messages)
         text = re.sub(r'http\S+', '', text)
@@ -61,9 +63,9 @@ async def wordcloud(
             colormap='spring'
         ).generate(text).to_image().save(img, format='PNG')
 
-        await ctx.respond(prefix_str, attachment=hikari.Bytes(img.getvalue(), 'cloud.png'))
+        await ctx.edit_initial_response(prefix_str, attachment=hikari.Bytes(img.getvalue(), 'cloud.png'))
     else:
-        await ctx.respond(f"I don't have enough data for {prefix_str}.")
+        await ctx.edit_initial_response(f"I don't have enough data for {prefix_str}.")
 
 
 @tanjun.as_loader

@@ -42,15 +42,17 @@ async def sentient(
             await ctx.respond(f"Something is broken about this query.")
             return
 
+    await ctx.respond("Thinking...")
+
     sentence = None
     if messages is not None and len(messages) > 0:
         model = markovify.Text(messages)
         sentence = model.make_sentence()
 
     if sentence is not None:
-        await ctx.respond(f"{prefix_str}:\n{sentence}")
+        await ctx.edit_initial_response(f"{prefix_str}:\n{sentence}")
     else:
-        await ctx.respond(f"I don't have enough data for {prefix_str}.")
+        await ctx.edit_initial_response(f"I don't have enough data for {prefix_str}.")
 
 
 @tanjun.as_loader
