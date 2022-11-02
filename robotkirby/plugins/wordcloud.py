@@ -50,7 +50,7 @@ async def wordcloud(
 
     await ctx.respond(f"Thinking about {prefix_str}...")
 
-    if messages is not None:
+    if len(messages) > 0 or messages is not None:
         text = ' '.join(messages)
         text = re.sub(r'http\S+', '', text)
 
