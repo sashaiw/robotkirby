@@ -56,12 +56,16 @@ async def wordcloud(
 
         img = io.BytesIO()
 
-        cloud = WordCloud(
-            width=1280,
-            height=720,
-            background_color='#36393e',
-            colormap='spring'
-        ).generate(text).to_image().save(img, format='PNG')
+        try:
+            cloud = WordCloud(
+                width=1280,
+                height=720,
+                background_color='#36393e',
+                colormap='spring'
+            ).generate(text).to_image().save(img, format='PNG')
+        except ValueError:
+            await ctx.edit_initial_response(f"I don't have enough data for {prefix_str}.")
+            return
 
         await ctx.edit_initial_response(prefix_str, attachment=hikari.Bytes(img.getvalue(), 'cloud.png'))
     else:
