@@ -4,10 +4,12 @@ import typing
 from robotkirby.db.db_driver import Database
 import numpy as np
 from statistics import mean
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from vaderSentiment import vaderSentiment
+
+vaderSentiment.SENTIMENT_LADEN_IDIOMS{'based': 3}
 
 component = tanjun.Component()
-sia = SentimentIntensityAnalyzer()
+sia = vaderSentiment.SentimentIntensityAnalyzer()
 
 def score_to_text(score: float) -> str:
     ranges = {
