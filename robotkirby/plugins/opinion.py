@@ -74,7 +74,10 @@ async def opinion(
         neu = np.asarray([s['neu'] for s in scores])
 
         # weight neutral scores less, opinionated scores more
-        score = np.average(compound, weights=1-neu)
+        try:
+            score = np.average(compound, weights=1-neu)
+        except ZeroDivisionError:
+            score = np.average(compound)
 
         await ctx.edit_initial_response(f"{prefix_str} has {score_to_text(score)} opinion of *{topic}*.\n"
                                         f"`score={score:.4f}`")
