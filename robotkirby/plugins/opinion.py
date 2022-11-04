@@ -6,7 +6,7 @@ import numpy as np
 from statistics import mean
 from vaderSentiment import vaderSentiment
 
-vaderSentiment.SENTIMENT_LADEN_IDIOMS{'based': 3}
+vaderSentiment.SENTIMENT_LADEN_IDIOMS['based'] = 3
 
 component = tanjun.Component()
 sia = vaderSentiment.SentimentIntensityAnalyzer()
