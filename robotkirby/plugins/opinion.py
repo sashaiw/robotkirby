@@ -68,7 +68,6 @@ async def opinion(
 
     if messages is not None and len(messages) > 0:
         scores = list(filter(lambda s: s['neu'] < 0.5, [sia.polarity_scores(m) for m in messages]))
-        await ctx.respond(scores)
 
         if len(scores) <= 0:
             await ctx.edit_initial_response(f"{prefix_str} doesn't have a strong opinion on *{topic}*")
