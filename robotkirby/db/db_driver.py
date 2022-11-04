@@ -1,5 +1,5 @@
 import hikari
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 import datetime
 
 
@@ -18,6 +18,9 @@ class Database:
         # create index for [guild, channel] to address the previously mentioned limitation
         # the optimizer doesn't use this one I think, IDK why
         self.messages.create_index([('guild', 1), ('channel', 1)])
+
+        # cursed
+        self.messages.create_index([('content', TEXT)], default_language='english')
 
     def log_message(
             self,
@@ -39,6 +42,7 @@ class Database:
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
+            text: str = None
     ) -> list:
         filter_dict = {}
         if member is not None:
@@ -50,25 +54,28 @@ class Database:
         if guild is not None:
             filter_dict['guild'] = guild
 
+        if text is not None:
+            filter_dict['$text'] = {'$search': text}
+
         return [msg['content'] for msg in self.messages.find(
             filter_dict,
             {'_id': 0, 'content': 1}
         )]
 
-    def update_permissions(self, member: hikari.User, read_messages: bool):
+    def update_permissions(self, member: hikari.User, read_messages: bool) -> None:
         self.permissions.update_one(
             {'_id': member.id},
             {'$set': {'read_messages': read_messages}},
             upsert=True
         )
 
-    def check_read_permission(self, member: hikari.User):
+    def check_read_permission(self, member: hikari.User) -> None:
         read_permission = self.permissions.find_one({'_id': member.id})
         if read_permission is not None:
             return read_permission['read_messages']
         else:
             return False
 
-    def delete_by_user(self, member: hikari.User):
+    def delete_by_user(self, member: hikari.User) -> None:
         deletion = self.messages.delete_many({'author': member.id})
         return deletion.deleted_count

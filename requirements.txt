@@ -3,3 +3,4 @@ hikari-tanjun
 pymongo
 markovify
 wordcloud
+vaderSentiment

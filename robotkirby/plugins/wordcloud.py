@@ -23,12 +23,6 @@ async def wordcloud(
         channel: typing.Optional[hikari.InteractionChannel],
         db: Database = tanjun.inject(type=Database)
 ) -> None:
-    messages = db.get_messages(
-        member=member,
-        guild=ctx.guild_id,
-        channel=channel
-    )
-
     if not db.check_read_permission(ctx.author):
         await(ctx.respond('In order to use Robot Kirby, please opt in to data collection using the `/opt in` command. '
                           'This will allow me to collect your messages so that I can build sentences from your data. '
@@ -49,6 +43,12 @@ async def wordcloud(
             return
 
     await ctx.respond(f"Thinking about {prefix_str}...")
+
+    messages = db.get_messages(
+        member=member,
+        guild=ctx.guild_id,
+        channel=channel
+    )
 
     if len(messages) > 0 or messages is not None:
         text = ' '.join(messages)
