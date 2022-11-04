@@ -67,11 +67,18 @@ async def opinion(
     )
 
     if messages is not None and len(messages) > 0:
-        score = mean(map(lambda m: sia.polarity_scores(m)['compound'], messages))
+        scores = list(filter(lambda s: s['neu'] < 0.5, [sia.polarity_scores(m) for m in messages]))
+        await ctx.respond(scores)
+
+        if len(scores) <= 0:
+            await ctx.edit_initial_response(f"{prefix_str} doesn't have a strong opinion on *{topic}*")
+            return
+
+        score = mean(map(lambda m: m['compound'], scores))
         await ctx.edit_initial_response(f"{prefix_str} has {score_to_text(score)} opinion of *{topic}*.\n"
                                         f"`score={score:.4f}`")
     else:
-        await ctx.edit_initial_response(f"{prefix_str} doesn't have an opinion on *{topic}*")
+        await ctx.edit_initial_response(f"{prefix_str} doesn't know about *{topic}*")
 
 
 @tanjun.as_loader
