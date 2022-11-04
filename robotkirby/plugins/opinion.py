@@ -66,7 +66,7 @@ async def opinion(
         text=topic
     )
 
-    if topic is not None:
+    if messages is not None:
         score = mean(map(lambda m: sia.polarity_scores(m)['compound'], messages))
         await ctx.edit_initial_response(f"{prefix_str} has {score_to_text(score)} opinion of *{topic}*.\n"
                                         f"`score={score:.4f}`")
