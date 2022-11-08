@@ -6,6 +6,8 @@ Robot Kirby uses [Hikari](https://github.com/hikari-py/hikari) and [Tanjun](http
 for interacting with the Discord API, [MongoDB](https://www.mongodb.com/) as a database, and 
 [Markovify](https://github.com/jsvine/markovify) for the Markov chain model.
 
+Credit to [Amelia](https://github.com/a-sinclaire) for the idea for the `/timedensity` command!
+
 ## How to run
 
 Make a file called `.env` in the root directory with the following contents:
