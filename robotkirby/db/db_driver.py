@@ -37,13 +37,13 @@ class Database:
 
         self.messages.insert_one(message)
 
-    def get_messages(
+    def _get_filter_dict(
             self,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
             text: str = None
-    ) -> list:
+    ) -> dict:
         filter_dict = {}
         if member is not None:
             filter_dict['author'] = member.id
@@ -57,9 +57,34 @@ class Database:
         if text is not None:
             filter_dict['$text'] = {'$search': text}
 
+        return filter_dict
+
+    def get_messages(
+            self,
+            member: hikari.User = None,
+            guild: int = None,
+            channel: hikari.InteractionChannel = None,
+            text: str = None
+    ) -> list[str]:
+        filter_dict = self._get_filter_dict(member, guild, channel, text)
+
         return [msg['content'] for msg in self.messages.find(
             filter_dict,
             {'_id': 0, 'content': 1}
+        )]
+
+    def get_timestamps(
+            self,
+            member: hikari.User = None,
+            guild: int = None,
+            channel: hikari.InteractionChannel = None,
+            text: str = None
+    ) -> list[datetime.datetime]:
+        filter_dict = self._get_filter_dict(member, guild, channel, text)
+
+        return [msg['time'] for msg in self.messages.find(
+            filter_dict,
+            {'_id': 0, 'time': 1}
         )]
 
     def update_permissions(self, member: hikari.User, read_messages: bool) -> None:
