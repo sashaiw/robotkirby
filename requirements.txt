@@ -1,6 +1,9 @@
-hikari
-hikari-tanjun
+hikari==2.0.0.dev111
+hikari-tanjun==2.8.1a1
 pymongo
 markovify
 wordcloud
 vaderSentiment
+pandas
+matplotlib
+seaborn
