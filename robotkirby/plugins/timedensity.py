@@ -66,7 +66,7 @@ def dt_to_sec(dt: datetime) -> int:
 @tanjun.with_channel_slash_option('channel', 'channel to plot', default=None)
 @tanjun.with_str_slash_option('timezone', 'timezone to report in', default="EST")
 @tanjun.as_slash_command('timedensity', 'Plot when a member/channel/server is active during the day')
-async def opinion(
+async def timedensity(
         ctx: tanjun.abc.Context,
         topic: typing.Optional[str],
         member: typing.Optional[hikari.Member],
