@@ -1,11 +1,13 @@
 import hikari
 from pymongo import MongoClient, TEXT
 import datetime
+import logging
+import os
 
 
 class Database:
     def __init__(self):
-        self.client = MongoClient('mongodb://root:kirby@kirby_db:27017/')
+        self.client = MongoClient(os.environ.get('MONGO_URI'))
         self.db = self.client.kirby
         self.messages = self.db.messages
         self.permissions = self.db.permissions
@@ -37,8 +39,8 @@ class Database:
 
         self.messages.insert_one(message)
 
+    @staticmethod
     def _get_filter_dict(
-            self,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
@@ -48,11 +50,11 @@ class Database:
         if member is not None:
             filter_dict['author'] = member.id
 
-        if channel is not None:
-            filter_dict['channel'] = channel.id
-
         if guild is not None:
             filter_dict['guild'] = guild
+
+        if channel is not None:
+            filter_dict['channel'] = channel.id
 
         if text is not None:
             filter_dict['$text'] = {'$search': text}
@@ -66,7 +68,7 @@ class Database:
             channel: hikari.InteractionChannel = None,
             text: str = None
     ) -> list[str]:
-        filter_dict = self._get_filter_dict(member, guild, channel, text)
+        filter_dict = self._get_filter_dict(member=member, guild=guild, channel=channel, text=text)
 
         return [msg['content'] for msg in self.messages.find(
             filter_dict,

@@ -4,6 +4,8 @@ services:
     build: .
     container_name: kirby
     env_file: .env
+    environment:
+      MONGO_URI: "mongodb://root:kirby@kirby_db:27017/"
     restart: always
 
   kirby_db:
