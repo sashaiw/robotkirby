@@ -24,10 +24,7 @@ class Database:
         # cursed
         self.messages.create_index([('content', TEXT)], default_language='english')
 
-    def log_message(
-            self,
-            event: hikari.GuildMessageCreateEvent
-    ) -> None:
+    def log_message(self, event: hikari.GuildMessageCreateEvent) -> None:
         message = {
             '_id': event.message_id,
             'author': event.author_id,
@@ -38,6 +35,17 @@ class Database:
         }
 
         self.messages.insert_one(message)
+
+    def delete_message(self, event: hikari.GuildMessageDeleteEvent) -> None:
+        self.messages.delete_one(
+            {'_id': event.message_id}
+        )
+
+    def update_message(self, event: hikari.GuildMessageUpdateEvent) -> None:
+        self.messages.update_one(
+            {'_id': event.message_id},
+            {'$set': {'content': event.content}},
+        )
 
     @staticmethod
     def _get_filter_dict(
@@ -103,6 +111,14 @@ class Database:
         else:
             return False
 
-    def delete_by_user(self, member: hikari.User) -> None:
-        deletion = self.messages.delete_many({'author': member.id})
+    def delete_many(
+        self,
+        member: hikari.User = None,
+        guild: int = None,
+        channel: hikari.InteractionChannel = None,
+        text: str = None
+    ) -> int:
+        filter_dict = self._get_filter_dict(member=member, guild=guild, channel=channel, text=text)
+
+        deletion = self.messages.delete_many(filter_dict)
         return deletion.deleted_count

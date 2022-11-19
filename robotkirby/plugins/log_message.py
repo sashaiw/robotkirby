@@ -17,6 +17,24 @@ async def on_message(
         db.log_message(event)
 
 
+@log_message.with_listener(hikari.GuildMessageDeleteEvent)
+async def on_delete(
+        event: hikari.GuildMessageDeleteEvent,
+        db: Database = tanjun.inject(type=Database)
+) -> None:
+
+    db.delete_message(event)
+
+
+@log_message.with_listener(hikari.GuildMessageUpdateEvent)
+async def on_update(
+        event: hikari.GuildMessageUpdateEvent,
+        db: Database = tanjun.inject(type=Database)
+) -> None:
+
+    db.update_message(event)
+
+
 @tanjun.as_loader
 def load(client: tanjun.abc.Client) -> None:
     client.add_component(log_message.copy())
