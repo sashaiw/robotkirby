@@ -18,4 +18,4 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ~/kirby/data:/data/db
+      - ~/kirby_db/data:/data/db
