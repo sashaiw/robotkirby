@@ -10,7 +10,7 @@ async def on_message(
         event: hikari.GuildMessageCreateEvent,
         db: Database = tanjun.inject(type=Database)
 ) -> None:
-    if event.is_bot or not event.content:
+    if event.is_bot or event.content is None:
         return
 
     if db.check_read_permission(event.author):
