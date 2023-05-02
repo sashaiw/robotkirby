@@ -1,5 +1,6 @@
 version: "3.9"
 services:
+services:
   kirby:
     build: .
     container_name: kirby
@@ -9,7 +10,7 @@ services:
     restart: always
 
   kirby_db:
-    image: mongo:4.4.17
+    image: mongo:6.0.5
     container_name: kirby_db
     restart: always
     environment:
