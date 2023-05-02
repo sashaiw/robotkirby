@@ -6,7 +6,7 @@ from robotkirby.db.db_driver import Database
 
 def build_bot() -> hikari.GatewayBot:
     token = os.environ.get('DISCORD_TOKEN')
-    bot = hikari.GatewayBot(token)
+    bot = hikari.GatewayBot(token, intents=hikari.Intents.ALL)
 
     make_client(bot)
 
