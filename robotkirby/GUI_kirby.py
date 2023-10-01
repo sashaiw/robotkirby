@@ -21,6 +21,14 @@ if __name__ == '__main__':
     last_folder = ''
     while True:
         event, values = window.read()
+        member = values['-MEMBER-']
+        channel = values['-CHANNEL-']
+
+        if member == 'all':
+            member = None
+        if channel == 'all':
+            channel = None
+
         if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
             break
         if values['-FOLDER-'] != last_folder:  # if new database selected
@@ -38,8 +46,6 @@ if __name__ == '__main__':
             print('good')
         elif event == 'Sentient':
             # generate output
-            member = values['-MEMBER-']
-            channel = values['-CHANNEL-']
             output = 'sample sentence'
             try:
                 pyperclip.copy(output)  # try to put output on clipboard
