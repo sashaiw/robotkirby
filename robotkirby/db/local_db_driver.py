@@ -111,21 +111,14 @@ class Database:
                 guild_name_list.append(guild_name)
         return guilds, guild_id_list, guild_name_list
 
-    def get_members(self):
-        members = self.messages.distinct('author')
+    def get_dm_name(self, guild, channel):
+        members, member_ids, member_names = self.get_members(guild, channel)
+        return 'DM: (' + ', '.join(member_names[1:]) + ')'
 
-        member_id_list = []
-        member_name_list = []
-        for member in members:
-            member_id = member['id']
-            member_name = member['name']
-            if member_id not in member_id_list:
-                member_id_list.append(member_id)
-                member_name_list.append(member_name)
-        return members, member_id_list, member_name_list
-
-    def get_channels(self):
-        channels = self.messages.distinct('channel')
+    def get_channels(self, guild=None):
+        if guild is None:
+            return ['None']
+        channels = self.messages.distinct('channel', {'guild': guild})
 
         channel_id_list = []
         channel_name_list = []
@@ -134,5 +127,36 @@ class Database:
             channel_name = channel['name']
             if channel_id not in channel_id_list:
                 channel_id_list.append(channel_id)
-                channel_name_list.append(channel_name)
+                if guild['name'] == 'Direct Messages':
+                    channel_name_list.append(self.get_dm_name(guild, channel))
+                else:
+                    channel_name_list.append(channel_name)
+        channels.insert(0, None)
+        channel_id_list.insert(0, None)
+        channel_name_list.insert(0, 'None')
         return channels, channel_id_list, channel_name_list
+
+    def get_members(self, guild=None, channel=None):
+        match (guild, channel):
+            case (None, None):
+                members = self.messages.distinct('author')
+            case (guild, None):
+                members = self.messages.distinct('author', {'guild': guild})
+            case (None, channel):
+                members = self.messages.distinct('author', {'channel': channel})
+            case (guild, channel):
+                members = self.messages.distinct('author', {'guild': guild, 'channel': channel})
+            case _:
+                raise Exception(f"Something is broken about this query.")
+
+        member_id_list = []
+        member_name_list = []
+        for member in members:
+            member_id = member['id']
+            member_name = member['name']
+            if member_id not in member_id_list:
+                member_name_list.append(member_name)
+        members.insert(0, None)
+        member_id_list.insert(0, None)
+        member_name_list.insert(0, 'None')
+        return members, member_id_list, member_name_list

@@ -15,10 +15,12 @@ if __name__ == '__main__':
 
     guilds = []
     guild_names = []
-    members = []
-    member_names = []
+
     channels = []
     channel_names = []
+
+    members = []
+    member_names = []
 
     guild_list = []
     member_list = ['None']
@@ -26,23 +28,20 @@ if __name__ == '__main__':
 
     # get combo options
     if database_initialized:
-        members, member_ids, member_names = my_database.get_members()
-        member_list.extend(member_names)
-        member_list = list(dict.fromkeys(member_list))
-
         guilds, guild_ids, guild_names = my_database.get_guilds()
-        guild_list.extend(guild_names)
-        guild_list = list(dict.fromkeys(guild_list))
+        guild_list = guild_names
 
-        channels, channel_ids, channel_names = my_database.get_channels()
-        channel_list.extend(channel_names)
-        channel_list = list(dict.fromkeys(channel_list))
+        channels, channel_ids, channel_names = my_database.get_channels(guild=guilds[0])
+        channel_list = channel_names
+
+        members, member_ids, member_names = my_database.get_members(guild=guilds[0], channel=None)
+        member_list = member_names
 
     sg.theme('DarkAmber')
     layout = [[sg.Text('Robot Kirby Local')],
               [sg.Text('Guild:'), sg.Combo(key='-GUILD-', values=guild_list, default_value=guild_list[0])],
-              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', values=member_list, default_value=member_list[0])],
               [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', values=channel_list, default_value=channel_list[0])],
+              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', values=member_list, default_value=member_list[0])],
               [sg.Button(key='Opinion', button_text='Opinion'), sg.Input(key='-OPINION-')],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
               [sg.Button(key='Time Density', button_text='Time Density')],
@@ -85,12 +84,19 @@ if __name__ == '__main__':
                 # window['Folder'].update('FAILED to load this as a database')
         if not database_initialized:
             continue  # nothing past this works without a database initialized
-        if event == 'Clear':
+        if event == '-GUILD-' or event == '-CHANNEL-':  # change guild or channel
+            # update channel list
+            channels, channel_ids, channel_names = my_database.get_channels(guild=guild)
+            channel_list = channel_names
+            # update member list
+            members, member_ids, member_names = my_database.get_members(guild=guilds, channel=channel)
+            member_list = member_names
+        elif event == 'Clear':
             my_database.clear_database()
             message_count = my_database.messages.count_documents({})
             database_initialized = False if message_count == 0 else True
             window['-N-ENTRIES-'].update(message_count)
-        if event == 'Opinion':
+        elif event == 'Opinion':
             print('good')
         elif event == 'Sentient':
             # generate output

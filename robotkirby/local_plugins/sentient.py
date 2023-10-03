@@ -10,9 +10,15 @@ def sentient(guild, member, channel, db: Database):
         case (member, None):
             prefix_str = f'{member["name"]}'  # member name
         case (None, channel):
-            prefix_str = f'{channel["name"]}'  # channel name
+            if guild['name'] == 'Direct Messages':
+                prefix_str = f'{db.get_dm_name(guild = guild, channel=channel)}'
+            else:
+                prefix_str = f'{channel["name"]}'  # channel name
         case (member, channel):
-            prefix_str = f'{member["name"]} in {channel["name"]}'  # member in channel
+            if guild['name'] == 'Direct Messages':
+                prefix_str = f'{member["name"]} in {db.get_dm_name(guild = guild, channel=channel)}'
+            else:
+                prefix_str = f'{member["name"]} in {channel["name"]}'  # member in channel
         case _:
             raise Exception(f"Something is broken about this query.")
 
