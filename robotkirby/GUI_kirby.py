@@ -22,7 +22,7 @@ if __name__ == '__main__':
     members = []
     member_names = []
 
-    guild_list = []
+    guild_list = ['None']
     member_list = ['None']
     channel_list = ['None']
 
@@ -39,9 +39,9 @@ if __name__ == '__main__':
 
     sg.theme('DarkAmber')
     layout = [[sg.Text('Robot Kirby Local')],
-              [sg.Text('Guild:'), sg.Combo(key='-GUILD-', values=guild_list, default_value=guild_list[0])],
-              [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', values=channel_list, default_value=channel_list[0])],
-              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', values=member_list, default_value=member_list[0])],
+              [sg.Text('Guild:'), sg.Combo(key='-GUILD-', size=(35, 10), enable_events=True, values=guild_list, default_value=guild_list[0])],
+              [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', size=(35, 10), enable_events=True, values=channel_list, default_value=channel_list[0])],
+              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', size=(35, 10), values=member_list, default_value=member_list[0])],
               [sg.Button(key='Opinion', button_text='Opinion'), sg.Input(key='-OPINION-')],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
               [sg.Button(key='Time Density', button_text='Time Density')],
@@ -57,8 +57,8 @@ if __name__ == '__main__':
         event, values = window.read()
 
         guild = None if values['-GUILD-'] == 'None' else guilds[guild_names.index(values['-GUILD-'])]
-        member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
         channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
+        member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
 
         if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
             break
@@ -73,9 +73,20 @@ if __name__ == '__main__':
                 window['-N-ENTRIES-'].update(message_count)
 
                 # update possible guild, member, and channel values
-                member_ids, member_names = my_database.get_members()
-                member_list.extend(member_names)
-                member_list = list(set(member_list))
+                guilds, guild_ids, guild_names = my_database.get_guilds()
+                guild_list = guild_names
+                window['-GUILD-'].update(values=guild_list, value=guild_list[0])
+
+                guild = guilds[guild_names.index(guild_list[0])]
+
+                channels, channel_ids, channel_names = my_database.get_channels(guild=guild)
+                channel_list = channel_names
+                window['-CHANNEL-'].update(values=channel_list, value=channel_list[0])
+
+                channel = channels[channel_names.index(channel_list[0])]
+
+                members, member_ids, member_names = my_database.get_members(guild, channel)
+                member_list = member_names
                 window['-MEMBER-'].update(values=member_list, value=member_list[0])
 
             except json.decoder.JSONDecodeError:
@@ -84,18 +95,35 @@ if __name__ == '__main__':
                 # window['Folder'].update('FAILED to load this as a database')
         if not database_initialized:
             continue  # nothing past this works without a database initialized
-        if event == '-GUILD-' or event == '-CHANNEL-':  # change guild or channel
+        if event == '-GUILD-':  # change guild
+            guild = None if values['-GUILD-'] == 'None' else guilds[guild_names.index(values['-GUILD-'])]
+
             # update channel list
             channels, channel_ids, channel_names = my_database.get_channels(guild=guild)
             channel_list = channel_names
+            window['-CHANNEL-'].update(values=channel_list, value=channel_list[0])
+
+            channel = channels[channel_names.index(channel_list[0])]
+
             # update member list
-            members, member_ids, member_names = my_database.get_members(guild=guilds, channel=channel)
+            members, member_ids, member_names = my_database.get_members(guild=guild, channel=channel)
             member_list = member_names
+            window['-MEMBER-'].update(values=member_list, value=member_list[0])
+        elif event == '-CHANNEL-':  # change channel
+            channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
+
+            # update member list
+            members, member_ids, member_names = my_database.get_members(guild=guild, channel=channel)
+            member_list = member_names
+            window['-MEMBER-'].update(values=member_list, value=member_list[0])
         elif event == 'Clear':
             my_database.clear_database()
             message_count = my_database.messages.count_documents({})
             database_initialized = False if message_count == 0 else True
             window['-N-ENTRIES-'].update(message_count)
+            window['-GUILD-'].update(values=['None'], value='None')
+            window['-CHANNEL-'].update(values=['None'], value='None')
+            window['-MEMBER-'].update(values=['None'], value='None')
         elif event == 'Opinion':
             print('good')
         elif event == 'Sentient':

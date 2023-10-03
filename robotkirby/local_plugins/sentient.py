@@ -4,18 +4,19 @@ import markovify
 
 
 def sentient(guild, member, channel, db: Database):
+    guild_name = f'**ALL GUILDS**' if guild == None else f'**{guild["name"]}**'
     match (member, channel):
         case (None, None):
-            prefix_str = f'**{guild["name"]}**'  # server name / dm title (maybe could use folder title or something)
+            prefix_str = guild_name  # server name / dm title (maybe could use folder title or something)
         case (member, None):
             prefix_str = f'{member["name"]}'  # member name
         case (None, channel):
-            if guild['name'] == 'Direct Messages':
+            if guild_name == f'**Direct Messages**':
                 prefix_str = f'{db.get_dm_name(guild = guild, channel=channel)}'
             else:
                 prefix_str = f'{channel["name"]}'  # channel name
         case (member, channel):
-            if guild['name'] == 'Direct Messages':
+            if guild_name == f'**Direct Messages**':
                 prefix_str = f'{member["name"]} in {db.get_dm_name(guild = guild, channel=channel)}'
             else:
                 prefix_str = f'{member["name"]} in {channel["name"]}'  # member in channel

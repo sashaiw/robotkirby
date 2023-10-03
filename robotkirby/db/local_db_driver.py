@@ -1,4 +1,5 @@
 import bson
+import emoji
 import hikari
 import pymongo.errors
 from pymongo import MongoClient, TEXT
@@ -6,6 +7,12 @@ import datetime
 import json
 import logging
 import os
+
+import re
+
+
+def remove_non_ascii(text):
+    return re.sub(r'[^\x00-\x7F]', ' ', text)
 
 
 class Database:
@@ -109,6 +116,10 @@ class Database:
             if guild_id not in guild_id_list:
                 guild_id_list.append(guild_id)
                 guild_name_list.append(guild_name)
+        guilds.insert(0, None)
+        guild_id_list.insert(0, None)
+        guild_name_list.insert(0, 'None')
+        guild_name_list = [emoji.demojize(x) for x in guild_name_list]
         return guilds, guild_id_list, guild_name_list
 
     def get_dm_name(self, guild, channel):
@@ -117,7 +128,7 @@ class Database:
 
     def get_channels(self, guild=None):
         if guild is None:
-            return ['None']
+            return [None], [None], ['None']
         channels = self.messages.distinct('channel', {'guild': guild})
 
         channel_id_list = []
@@ -134,6 +145,7 @@ class Database:
         channels.insert(0, None)
         channel_id_list.insert(0, None)
         channel_name_list.insert(0, 'None')
+        channel_name_list = [emoji.demojize(x) for x in channel_name_list]
         return channels, channel_id_list, channel_name_list
 
     def get_members(self, guild=None, channel=None):
@@ -149,14 +161,18 @@ class Database:
             case _:
                 raise Exception(f"Something is broken about this query.")
 
+        unique_members = []
         member_id_list = []
         member_name_list = []
         for member in members:
             member_id = member['id']
             member_name = member['name']
             if member_id not in member_id_list:
+                unique_members.append(member)
+                member_id_list.append(member_id)
                 member_name_list.append(member_name)
-        members.insert(0, None)
+        unique_members.insert(0, None)
         member_id_list.insert(0, None)
         member_name_list.insert(0, 'None')
-        return members, member_id_list, member_name_list
+        member_name_list = [emoji.demojize(x) for x in member_name_list]
+        return unique_members, member_id_list, member_name_list
