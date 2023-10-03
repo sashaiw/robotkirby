@@ -10,10 +10,8 @@ import os
 
 class Database:
     def __init__(self):
-        print('creating database...')
         self.client = MongoClient('localhost', 27017)
         self.db = self.client['kirby']  # create our database
-        print(self.client.list_database_names())
         self.messages = self.db.messages
         # self.permissions = self.db.permissions
 
@@ -115,7 +113,6 @@ class Database:
 
     def get_members(self):
         members = self.messages.distinct('author')
-        print(members)
 
         member_id_list = []
         member_name_list = []
