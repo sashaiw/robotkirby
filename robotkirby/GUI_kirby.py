@@ -3,7 +3,7 @@ import json.decoder
 import PySimpleGUI as sg
 import pyperclip
 from robotkirby.db.local_db_driver import Database
-from robotkirby.plugins import sentient
+from robotkirby.local_plugins import sentient
 
 import emoji
 
