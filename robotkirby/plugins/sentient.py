@@ -1,18 +1,18 @@
 import hikari
-from robotkirby.db.db_driver import Database
+from robotkirby.db.local_db_driver import Database
 import markovify
 
 
-def sentient(ctx, member, channel, db: Database):
+def sentient(guild, member, channel, db: Database):
     match (member, channel):
         case (None, None):
-            prefix_str = f'**{ctx.get_guild().name}**'  # server name / dm title (maybe could use folder title or something)
+            prefix_str = f'**{guild["name"]}**'  # server name / dm title (maybe could use folder title or something)
         case (member, None):
-            prefix_str = f'{member}'  # member name
+            prefix_str = f'{member["name"]}'  # member name
         case (None, channel):
-            prefix_str = f'{channel}'  # channel name
+            prefix_str = f'{channel["name"]}'  # channel name
         case (member, channel):
-            prefix_str = f'{member} in {channel}'  # member in channel
+            prefix_str = f'{member["name"]} in {channel["name"]}'  # member in channel
         case _:
             raise Exception(f"Something is broken about this query.")
 
@@ -20,8 +20,9 @@ def sentient(ctx, member, channel, db: Database):
 
     messages = db.get_messages(
         member=member,
-        guild=ctx.guild_id,
-        channel=channel
+        guild=guild,
+        channel=channel,
+        text=None
     )
 
     sentence = None
