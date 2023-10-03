@@ -5,6 +5,8 @@ import pyperclip
 from robotkirby.db.local_db_driver import Database
 from robotkirby.plugins import sentient
 
+import emoji
+
 if __name__ == '__main__':
     my_database = Database()
     message_count = my_database.messages.count_documents({})
@@ -42,7 +44,7 @@ if __name__ == '__main__':
               [sg.Text('Member:'), sg.Combo(key='-MEMBER-', values=member_list, default_value=member_list[0])],
               [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', values=channel_list, default_value=channel_list[0])],
               [sg.Button(key='Opinion', button_text='Opinion'), sg.Input(key='-OPINION-')],
-              [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='')],
+              [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
               [sg.Button(key='Time Density', button_text='Time Density')],
               [sg.Button(key='Word Cloud', button_text='Word Cloud')],
               [sg.FileBrowse(button_text='Open Discord JSON', target='filebrowse_field'),
@@ -94,6 +96,7 @@ if __name__ == '__main__':
             # generate output
             output = sentient.sentient(guild, member, channel, my_database)
             print(output)
+            output = emoji.demojize(output)
             try:
                 pyperclip.copy(output)  # try to put output on clipboard
             except:
