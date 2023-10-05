@@ -3,7 +3,7 @@ import json.decoder
 import PySimpleGUI as sg
 import pyperclip
 from robotkirby.db.local_db_driver import Database
-from robotkirby.local_plugins import sentient, timedensity, opinion
+from robotkirby.local_plugins import sentient, timedensity, opinion, wordcloud
 
 import emoji
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
               [sg.Button(key='Opinion', button_text='Opinion'), sg.Text(key='-OPINION-', text='', font=())],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
               [sg.Button(key='Time Density', button_text='Time Density'), sg.Text(key='-TIMEDENSITY-', text='', font=())],
-              [sg.Button(key='Word Cloud', button_text='Word Cloud')],
+              [sg.Button(key='Word Cloud', button_text='Word Cloud'), sg.Text(key='-WORDCLOUD-', text='', font=())],
               [sg.FileBrowse(button_text='Open Discord JSON', target='filebrowse_field'),
                sg.Input(key='filebrowse_field', default_text=''), sg.Button(key='load_db', button_text='LOAD')],
               [sg.Button(key='Clear', button_text='Clear Database'), sg.Text(text="Loaded: "), sg.Text(key='-N-ENTRIES-', text=message_count)]]
@@ -149,6 +149,10 @@ if __name__ == '__main__':
             # give option to save
         elif event == 'Word Cloud':
             # generate word cloud
+            output = wordcloud.wordcloud(guild, member, channel, db=my_database)
+            print(output)
+            output = emoji.demojize(output)
+            window['-WORDCLOUD-'].update(output)
             # show word cloud
             print('oOOoo oOOOo')
             # put image on clipboard
