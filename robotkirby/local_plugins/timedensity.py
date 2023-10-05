@@ -49,7 +49,7 @@ def make_prefix_str(guild, member, channel, topic, db):
         case (None, channel, str):
             return f'in {channel_name} about *{topic}*'
         case (member, channel, str):
-            return f'in {member["name"]} in {channel_name} about *{topic}*'
+            return f'by {member["name"]} in {channel_name} about *{topic}*'
         case _:
             return None
 
@@ -67,7 +67,7 @@ def dt_to_sec(dt: datetime) -> int:
     return (time.hour * 60 + time.minute) * 60 + time.second
 
 
-def timedensity(guild, topic, member, channel, timezone, db) -> None:
+def timedensity(guild, topic, member, channel, timezone, db):
     prefix_str = make_prefix_str(guild, member, channel, topic, db)
 
     print(f"Thinking about posts {prefix_str}...")
@@ -109,9 +109,10 @@ def timedensity(guild, topic, member, channel, timezone, db) -> None:
         )
 
         graph.figure.show()
+        return prefix_str
         # graph.figure.savefig(img, format='png')
         # await ctx.edit_initial_response(f'Posts {prefix_str}',
         #                                 attachment=hikari.Bytes(img.getvalue(), 'timedensity.png'))
 
     else:
-        print(f"I don't have enough data for {prefix_str}")
+        return(f"I don't have enough data for {prefix_str}")

@@ -42,9 +42,10 @@ if __name__ == '__main__':
               [sg.Text('Guild:'), sg.Combo(key='-GUILD-', size=(35, 10), enable_events=True, values=guild_list, default_value=guild_list[0])],
               [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', size=(35, 10), enable_events=True, values=channel_list, default_value=channel_list[0])],
               [sg.Text('Member:'), sg.Combo(key='-MEMBER-', size=(35, 10), values=member_list, default_value=member_list[0])],
-              [sg.Button(key='Opinion', button_text='Opinion'), sg.Input(key='-OPINION-')],
+              [sg.Text('Topic:'), sg.Input(key='-TOPIC-')],
+              [sg.Button(key='Opinion', button_text='Opinion'), sg.Text(key='-OPINION-', text='', font=())],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
-              [sg.Button(key='Time Density', button_text='Time Density')],
+              [sg.Button(key='Time Density', button_text='Time Density'), sg.Text(key='-TIMEDENSITY-', text='', font=())],
               [sg.Button(key='Word Cloud', button_text='Word Cloud')],
               [sg.FileBrowse(button_text='Open Discord JSON', target='filebrowse_field'),
                sg.Input(key='filebrowse_field', default_text=''), sg.Button(key='load_db', button_text='LOAD')],
@@ -59,6 +60,7 @@ if __name__ == '__main__':
         guild = None if values['-GUILD-'] == 'None' else guilds[guild_names.index(values['-GUILD-'])]
         channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
         member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
+        topic = None if values['-TOPIC-'] == '' else values['-TOPIC-']
 
         if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
             break
@@ -138,9 +140,9 @@ if __name__ == '__main__':
             window['-SENTIENT-'].update(output)  # show in GUI
         elif event == 'Time Density':
             # generate time density graph
-            topic=None
-            timedensity.timedensity(guild, topic, member, channel, timezone='EDT', db=my_database)
-            print('___,,.--.,_,.,--.,,__')
+            output = timedensity.timedensity(guild, topic, member, channel, timezone='EDT', db=my_database)
+            output = emoji.demojize(output)
+            window['-TIMEDENSITY-'].update((output))
             # put image on clipboard
             # give option to save
         elif event == 'Word Cloud':
