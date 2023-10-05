@@ -76,13 +76,13 @@ class Database:
     def _get_filter_dict(member, guild, channel, text) -> dict:
         filter_dict = {}
         if member is not None:
-            filter_dict['author'] = member
+            filter_dict['author.id'] = member['id']
 
         if guild is not None:
-            filter_dict['guild'] = guild
+            filter_dict['guild.id'] = guild['id']
 
         if channel is not None:
-            filter_dict['channel'] = channel
+            filter_dict['channel.id'] = channel['id']
 
         if text is not None:
             filter_dict['$text'] = {'$search': text}
