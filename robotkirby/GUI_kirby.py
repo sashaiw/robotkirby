@@ -3,7 +3,7 @@ import json.decoder
 import PySimpleGUI as sg
 import pyperclip
 from robotkirby.db.local_db_driver import Database
-from robotkirby.local_plugins import sentient
+from robotkirby.local_plugins import sentient, timedensity
 
 import emoji
 
@@ -138,7 +138,8 @@ if __name__ == '__main__':
             window['-SENTIENT-'].update(output)  # show in GUI
         elif event == 'Time Density':
             # generate time density graph
-            # show graph
+            topic=None
+            timedensity.timedensity(guild, topic, member, channel, timezone='EDT', db=my_database)
             print('___,,.--.,_,.,--.,,__')
             # put image on clipboard
             # give option to save

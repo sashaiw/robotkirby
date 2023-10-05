@@ -1,6 +1,7 @@
 import bson
+import os
+
 import emoji
-import hikari
 import pymongo.errors
 from pymongo import MongoClient, TEXT
 import datetime

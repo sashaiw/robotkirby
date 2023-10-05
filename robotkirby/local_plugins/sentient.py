@@ -1,4 +1,3 @@
-import hikari
 from robotkirby.db.local_db_driver import Database
 import markovify
 
