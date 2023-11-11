@@ -71,26 +71,62 @@ class Database:
 
     def get_messages(
             self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
             text: str = None
     ) -> list[str]:
         filter_dict = self._get_filter_dict(member=member, guild=guild, channel=channel, text=text)
+        if since is not None:
+            filter_dict['time'] = {"$gte": since}
+
+        if before is not None:
+            filter_dict['time'] = {"$lt": since}
 
         return [msg['content'] for msg in self.messages.find(
             filter_dict,
             {'_id': 0, 'content': 1}
         )]
 
+    def get_channels(
+            self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
+            member: hikari.User = None,
+            guild: int = None,
+            channel: hikari.InteractionChannel = None,
+            text: str = None
+    ) -> list[str]:
+        filter_dict = self._get_filter_dict(member=member, guild=guild, channel=channel, text=text)
+        if since is not None:
+            filter_dict['time'] = {"$gte": since}
+
+        if before is not None:
+            filter_dict['time'] = {"$lt": since}
+
+        return [msg['channel'] for msg in self.messages.find(
+            filter_dict,
+            {'_id': 0, 'channel': 1}
+        )]
+
     def get_timestamps(
             self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
             text: str = None
     ) -> list[datetime.datetime]:
         filter_dict = self._get_filter_dict(member, guild, channel, text)
+
+        if since is not None:
+            filter_dict['time'] = {"$gte": since}
+
+        if before is not None:
+            filter_dict['time'] = {"$lt": since}
 
         return [msg['time'] for msg in self.messages.find(
             filter_dict,
@@ -104,12 +140,18 @@ class Database:
             upsert=True
         )
 
-    def check_read_permission(self, member: hikari.User) -> None:
+    def check_read_permission(self, member: hikari.User) -> bool:
         read_permission = self.permissions.find_one({'_id': member.id})
         if read_permission is not None:
             return read_permission['read_messages']
         else:
             return False
+
+    def get_active_user_ids(self) -> list[str]:
+        return [user['_id'] for user in self.permissions.find(
+            {'read_messages': True},
+            {'_id': 1, 'read_messages': 0}
+        )]
 
     def delete_many(
         self,
