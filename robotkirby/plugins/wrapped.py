@@ -12,7 +12,6 @@ import numpy as np
 import profanity_check
 from vaderSentiment import vaderSentiment
 sia = vaderSentiment.SentimentIntensityAnalyzer()
-from sklearn.decomposition import LatentDirichletAllocation
 
 import nltk
 nltk.download('punkt')
