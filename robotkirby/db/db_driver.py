@@ -166,8 +166,8 @@ class Database:
         else:
             return False
 
-    def get_active_user_ids(self) -> list[str]:
-        return [user['_id'] for user in self.permissions.find(
+    def get_active_user_ids(self) -> list[int]:
+        return [int(user['_id']) for user in self.permissions.find(
             {'read_messages': True},
             {'_id': 1, 'read_messages': 0}
         )]
