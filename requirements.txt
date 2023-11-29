@@ -7,3 +7,6 @@ vaderSentiment
 pandas
 matplotlib
 seaborn
+nltk
+numpy
+alt-profanity-check
