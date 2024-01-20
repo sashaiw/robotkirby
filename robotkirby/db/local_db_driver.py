@@ -1,13 +1,8 @@
-import bson
-import os
-
 import emoji
 import pymongo.errors
 from pymongo import MongoClient, TEXT
 import datetime
 import json
-import logging
-import os
 
 import re
 
@@ -40,7 +35,7 @@ class Database:
 
     def load_json(self, json_data):
         n = 0
-        with open(json_data, 'r') as jsonfile:
+        with open(json_data, 'r', encoding='utf8') as jsonfile:
             data = json.load(jsonfile)
             guild_id = int(data['guild']['id'])
             guild_name = data['guild']['name']
@@ -56,6 +51,9 @@ class Database:
                 except ValueError:
                     time = datetime.datetime.strptime(message['timestamp'], '%Y-%m-%dT%H:%M:%S%z')
                 content = message['content']
+                attatchments = [x['url'] for x in list(message['attachments'])]
+                attatchments = '\n'.join(attatchments)
+                content += '\n'+attatchments
                 if isinstance(author_id, str):
                     print("????")
                 my_message = {'_id': _id, 'author': {'id': author_id, 'name': author_nick}, 'time': time,

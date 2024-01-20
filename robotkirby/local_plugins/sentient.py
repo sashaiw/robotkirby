@@ -33,8 +33,8 @@ def sentient(guild, member, channel, db: Database):
 
     sentence = None
     if messages is not None and len(messages) > 0:
-        model = markovify.Text(messages)
-        sentence = model.make_sentence()
+        model = markovify.Text(messages, retain_original=False)
+        sentence = model.make_sentence(tries=30)
 
     if sentence is not None:
         return f"{prefix_str}:\n{sentence}"

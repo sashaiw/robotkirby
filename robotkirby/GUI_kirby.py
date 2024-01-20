@@ -3,7 +3,7 @@ import json.decoder
 import PySimpleGUI as sg
 import pyperclip
 from robotkirby.db.local_db_driver import Database
-from robotkirby.local_plugins import sentient, timedensity, opinion, wordcloud
+from robotkirby.local_plugins import sentient, timedensity, opinion, my_wordcloud
 
 import emoji
 
@@ -134,6 +134,7 @@ if __name__ == '__main__':
             # generate output
             output = sentient.sentient(guild, member, channel, my_database)
             print(output)
+            output = "" if output is None else output
             output = emoji.demojize(output)
             try:
                 pyperclip.copy(output)  # try to put output on clipboard
@@ -142,15 +143,19 @@ if __name__ == '__main__':
             window['-SENTIENT-'].update(output)  # show in GUI
         elif event == 'Time Density':
             # generate time density graph
-            output = timedensity.timedensity(guild, topic, member, channel, timezone='EDT', db=my_database)
+            output = timedensity.timedensity(guild, topic, member, channel, timezone='EST', db=my_database)
+            print(output)
+            output = "" if output is None else output
             output = emoji.demojize(output)
             window['-TIMEDENSITY-'].update(output)
             # put image on clipboard
             # give option to save
         elif event == 'Word Cloud':
             # generate word cloud
-            output = wordcloud.wordcloud(guild, member, channel, db=my_database)
+            output = my_wordcloud.wordcloud(guild, member, channel, db=my_database)
+            # output= "aw mann"
             print(output)
+            output = "" if output is None else output
             output = emoji.demojize(output)
             window['-WORDCLOUD-'].update(output)
             # show word cloud
