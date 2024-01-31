@@ -132,7 +132,7 @@ if __name__ == '__main__':
             window['-OPINION-'].update(output)
         elif event == 'Sentient':
             # generate output
-            output = sentient.sentient(guild, member, channel, my_database)
+            output = sentient.sentient(guild, member, channel, topic, my_database)
             print(output)
             output = "" if output is None else output
             output = emoji.demojize(output)
