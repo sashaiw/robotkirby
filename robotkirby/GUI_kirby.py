@@ -43,6 +43,7 @@ if __name__ == '__main__':
               [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', size=(35, 10), enable_events=True, values=channel_list, default_value=channel_list[0])],
               [sg.Text('Member:'), sg.Combo(key='-MEMBER-', size=(35, 10), values=member_list, default_value=member_list[0])],
               [sg.Text('Topic:'), sg.Input(key='-TOPIC-')],
+              [sg.Text('Prompt:'), sg.Input(key='-PROMPT-')],
               [sg.Button(key='Opinion', button_text='Opinion'), sg.Text(key='-OPINION-', text='', font=())],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
               [sg.Button(key='Time Density', button_text='Time Density'), sg.Text(key='-TIMEDENSITY-', text='', font=())],
@@ -61,6 +62,7 @@ if __name__ == '__main__':
         channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
         member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
         topic = None if values['-TOPIC-'] == '' else values['-TOPIC-']
+        prompt = None if values['-PROMPT-'] == '' else values['-PROMPT-']
 
         if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
             break
@@ -132,7 +134,7 @@ if __name__ == '__main__':
             window['-OPINION-'].update(output)
         elif event == 'Sentient':
             # generate output
-            output = sentient.sentient(guild, member, channel, topic, my_database)
+            output = sentient.sentient(guild, member, channel, topic, prompt, my_database)
             print(output)
             output = "" if output is None else output
             output = emoji.demojize(output)
