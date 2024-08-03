@@ -16,7 +16,8 @@ def build_bot() -> hikari.GatewayBot:
 def make_client(bot: hikari.GatewayBot) -> tanjun.Client:
     client = tanjun.Client.from_gateway_bot(
         bot,
-        declare_global_commands=True
+        # declare_global_commands=True
+        declare_global_commands=163475269422809089
     )
 
     database = Database()

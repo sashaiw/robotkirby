@@ -14,7 +14,7 @@ async def delete_all(
         db: Database = tanjun.inject(type=Database)
 ) -> None:
     count = db.delete_many(member=ctx.author)
-    await ctx.respond(f'{count} messages deleted.')
+    await ctx.respond(f'{count} message{"" if count == 1 else "s"} deleted.')
 
 
 @top_group.with_command
@@ -24,7 +24,7 @@ async def delete_server(
         db: Database = tanjun.inject(type=Database)
 ) -> None:
     count = db.delete_many(member=ctx.author, guild=ctx.guild_id)
-    await ctx.respond(f'{count} messages deleted.')
+    await ctx.respond(f'{count} message{"" if count == 1 else "s"} deleted.')
 
 
 @top_group.with_command
@@ -36,7 +36,19 @@ async def delete_channel(
         db: Database = tanjun.inject(type=Database),
 ) -> None:
     count = db.delete_many(member=ctx.author, guild=ctx.guild_id, channel=channel)
-    await ctx.respond(f'{count} messages deleted.')
+    await ctx.respond(f'{count} message{"" if count == 1 else "s"} deleted.')
+
+
+@top_group.with_command
+@tanjun.with_str_slash_option('topic', 'topic to search for and delete')
+@tanjun.as_slash_command('topic', 'delete all of your data containing a certain topic (fuzzy search, pretty aggressive)', default_to_ephemeral=True)
+async def delete_topic(
+        ctx: tanjun.abc.Context,
+        topic: str,
+        db: Database = tanjun.inject(type=Database),
+) -> None:
+    count = db.delete_many(member=ctx.author, guild=ctx.guild_id, text=topic)
+    await ctx.respond(f'{count} message{"" if count == 1 else "s"} deleted.')
 
 
 @tanjun.as_loader
