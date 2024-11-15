@@ -92,7 +92,7 @@ async def sentient(
 
             try:
                 markov = model.make_sentence_with_start(beginning=prompt, tries=n_tries)
-            except KeyError:
+            except Exception:
                 markov = None
 
             if markov is not None:
