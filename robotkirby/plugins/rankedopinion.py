@@ -101,11 +101,13 @@ async def rankedopinion(
         except ZeroDivisionError:
             score = np.average(compound)
 
-        output.append(f'{len(output)+1}. {member.mention} `score={score:.4f}` ({score_to_text(score)[2:]})')
+        output.append((score, f'{member.mention} `score={score:.4f}` ({score_to_text(score)[2:]})'))
 
     if output is None or len(output) == 0:
         await ctx.edit_initial_response(f"{prefix_str} doesn't have an opinion on *{topic}*")
     else:
+        output = reversed(sorted(output, key=lambda tup: tup[0]))
+        output = [f'{idx}. {e[1]}' for idx, e in enumerate(output)]
         output = '\n'.join(output)
         await ctx.edit_initial_response(f"{prefix_str}'s opinions on *{topic}*:\n"
                                         f"{output}")
