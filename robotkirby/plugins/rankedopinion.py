@@ -1,15 +1,15 @@
 import collections
 import datetime
-import operator
-
 from dateutil.relativedelta import relativedelta
-import hikari
-import tanjun
+import operator
 import typing
-from robotkirby.db.db_driver import Database
+
+import hikari
 import numpy as np
-from statistics import mean
+import tanjun
 from vaderSentiment import vaderSentiment
+
+from robotkirby.db.db_driver import Database
 
 vaderSentiment.SPECIAL_CASES['based'] = 3
 
