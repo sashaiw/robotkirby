@@ -49,6 +49,8 @@ class Database:
 
     @staticmethod
     def _get_filter_dict(
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
@@ -67,30 +69,83 @@ class Database:
         if text is not None:
             filter_dict['$text'] = {'$search': text}
 
+        if since is not None:
+            if 'time' in filter_dict:
+                filter_dict['time'].append({'$gte': since})
+            else:
+                filter_dict['time'] = {'$gte': since}
+
+        if before is not None:
+            if 'time' in filter_dict:
+                filter_dict['time'].append({'$lt': before})
+            else:
+                filter_dict['time'] = {'$lt': before}
+
         return filter_dict
 
     def get_messages(
             self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
             text: str = None
     ) -> list[str]:
-        filter_dict = self._get_filter_dict(member=member, guild=guild, channel=channel, text=text)
+        filter_dict = self._get_filter_dict(
+            member=member,
+            guild=guild,
+            channel=channel,
+            text=text,
+            since=since,
+            before=before
+        )
 
         return [msg['content'] for msg in self.messages.find(
             filter_dict,
             {'_id': 0, 'content': 1}
         )]
 
+    def get_channels(
+            self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
+            member: hikari.User = None,
+            guild: int = None,
+            channel: hikari.InteractionChannel = None,
+            text: str = None
+    ) -> list[str]:
+        filter_dict = self._get_filter_dict(
+            member=member,
+            guild=guild,
+            channel=channel,
+            text=text,
+            since=since,
+            before=before
+        )
+
+        return [msg['channel'] for msg in self.messages.find(
+            filter_dict,
+            {'_id': 0, 'channel': 1}
+        )]
+
     def get_timestamps(
             self,
+            since: datetime.datetime = None,
+            before: datetime.datetime = None,
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
             text: str = None
     ) -> list[datetime.datetime]:
-        filter_dict = self._get_filter_dict(member, guild, channel, text)
+        filter_dict = self._get_filter_dict(
+            member=member,
+            guild=guild,
+            channel=channel,
+            text=text,
+            since=since,
+            before=before
+        )
 
         return [msg['time'] for msg in self.messages.find(
             filter_dict,
@@ -104,12 +159,18 @@ class Database:
             upsert=True
         )
 
-    def check_read_permission(self, member: hikari.User) -> None:
+    def check_read_permission(self, member: hikari.User) -> bool:
         read_permission = self.permissions.find_one({'_id': member.id})
         if read_permission is not None:
             return read_permission['read_messages']
         else:
             return False
+
+    def get_active_user_ids(self) -> list[int]:
+        return [int(user['_id']) for user in self.permissions.find(
+            {'read_messages': True},
+            {'_id': 1, 'read_messages': 0}
+        )]
 
     def delete_many(
         self,

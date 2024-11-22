@@ -3,7 +3,7 @@ import json.decoder
 import PySimpleGUI as sg
 import pyperclip
 from robotkirby.db.local_db_driver import Database
-from robotkirby.local_plugins import sentient
+from robotkirby.local_plugins import sentient, timedensity, opinion, my_wordcloud
 
 import emoji
 
@@ -15,38 +15,39 @@ if __name__ == '__main__':
 
     guilds = []
     guild_names = []
-    members = []
-    member_names = []
+
     channels = []
     channel_names = []
 
-    guild_list = []
+    members = []
+    member_names = []
+
+    guild_list = ['None']
     member_list = ['None']
     channel_list = ['None']
 
     # get combo options
     if database_initialized:
-        members, member_ids, member_names = my_database.get_members()
-        member_list.extend(member_names)
-        member_list = list(dict.fromkeys(member_list))
-
         guilds, guild_ids, guild_names = my_database.get_guilds()
-        guild_list.extend(guild_names)
-        guild_list = list(dict.fromkeys(guild_list))
+        guild_list = guild_names
 
-        channels, channel_ids, channel_names = my_database.get_channels()
-        channel_list.extend(channel_names)
-        channel_list = list(dict.fromkeys(channel_list))
+        channels, channel_ids, channel_names = my_database.get_channels(guild=guilds[0])
+        channel_list = channel_names
+
+        members, member_ids, member_names = my_database.get_members(guild=guilds[0], channel=None)
+        member_list = member_names
 
     sg.theme('DarkAmber')
     layout = [[sg.Text('Robot Kirby Local')],
-              [sg.Text('Guild:'), sg.Combo(key='-GUILD-', values=guild_list, default_value=guild_list[0])],
-              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', values=member_list, default_value=member_list[0])],
-              [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', values=channel_list, default_value=channel_list[0])],
-              [sg.Button(key='Opinion', button_text='Opinion'), sg.Input(key='-OPINION-')],
+              [sg.Text('Guild:'), sg.Combo(key='-GUILD-', size=(35, 10), enable_events=True, values=guild_list, default_value=guild_list[0])],
+              [sg.Text('Channel:'), sg.Combo(key='-CHANNEL-', size=(35, 10), enable_events=True, values=channel_list, default_value=channel_list[0])],
+              [sg.Text('Member:'), sg.Combo(key='-MEMBER-', size=(35, 10), values=member_list, default_value=member_list[0])],
+              [sg.Text('Topic:'), sg.Input(key='-TOPIC-')],
+              [sg.Text('Prompt:'), sg.Input(key='-PROMPT-')],
+              [sg.Button(key='Opinion', button_text='Opinion'), sg.Text(key='-OPINION-', text='', font=())],
               [sg.Button(key='Sentient', button_text='Sentient'), sg.Text(key='-SENTIENT-', text='', font=())],
-              [sg.Button(key='Time Density', button_text='Time Density')],
-              [sg.Button(key='Word Cloud', button_text='Word Cloud')],
+              [sg.Button(key='Time Density', button_text='Time Density'), sg.Text(key='-TIMEDENSITY-', text='', font=())],
+              [sg.Button(key='Word Cloud', button_text='Word Cloud'), sg.Text(key='-WORDCLOUD-', text='', font=())],
               [sg.FileBrowse(button_text='Open Discord JSON', target='filebrowse_field'),
                sg.Input(key='filebrowse_field', default_text=''), sg.Button(key='load_db', button_text='LOAD')],
               [sg.Button(key='Clear', button_text='Clear Database'), sg.Text(text="Loaded: "), sg.Text(key='-N-ENTRIES-', text=message_count)]]
@@ -58,8 +59,10 @@ if __name__ == '__main__':
         event, values = window.read()
 
         guild = None if values['-GUILD-'] == 'None' else guilds[guild_names.index(values['-GUILD-'])]
-        member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
         channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
+        member = None if values['-MEMBER-'] == 'None' else members[member_names.index(values['-MEMBER-'])]
+        topic = None if values['-TOPIC-'] == '' else values['-TOPIC-']
+        prompt = None if values['-PROMPT-'] == '' else values['-PROMPT-']
 
         if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
             break
@@ -74,9 +77,20 @@ if __name__ == '__main__':
                 window['-N-ENTRIES-'].update(message_count)
 
                 # update possible guild, member, and channel values
-                member_ids, member_names = my_database.get_members()
-                member_list.extend(member_names)
-                member_list = list(set(member_list))
+                guilds, guild_ids, guild_names = my_database.get_guilds()
+                guild_list = guild_names
+                window['-GUILD-'].update(values=guild_list, value=guild_list[0])
+
+                guild = guilds[guild_names.index(guild_list[0])]
+
+                channels, channel_ids, channel_names = my_database.get_channels(guild=guild)
+                channel_list = channel_names
+                window['-CHANNEL-'].update(values=channel_list, value=channel_list[0])
+
+                channel = channels[channel_names.index(channel_list[0])]
+
+                members, member_ids, member_names = my_database.get_members(guild, channel)
+                member_list = member_names
                 window['-MEMBER-'].update(values=member_list, value=member_list[0])
 
             except json.decoder.JSONDecodeError:
@@ -85,17 +99,44 @@ if __name__ == '__main__':
                 # window['Folder'].update('FAILED to load this as a database')
         if not database_initialized:
             continue  # nothing past this works without a database initialized
-        if event == 'Clear':
+        if event == '-GUILD-':  # change guild
+            guild = None if values['-GUILD-'] == 'None' else guilds[guild_names.index(values['-GUILD-'])]
+
+            # update channel list
+            channels, channel_ids, channel_names = my_database.get_channels(guild=guild)
+            channel_list = channel_names
+            window['-CHANNEL-'].update(values=channel_list, value=channel_list[0])
+
+            channel = channels[channel_names.index(channel_list[0])]
+
+            # update member list
+            members, member_ids, member_names = my_database.get_members(guild=guild, channel=channel)
+            member_list = member_names
+            window['-MEMBER-'].update(values=member_list, value=member_list[0])
+        elif event == '-CHANNEL-':  # change channel
+            channel = None if values['-CHANNEL-'] == 'None' else channels[channel_names.index(values['-CHANNEL-'])]
+
+            # update member list
+            members, member_ids, member_names = my_database.get_members(guild=guild, channel=channel)
+            member_list = member_names
+            window['-MEMBER-'].update(values=member_list, value=member_list[0])
+        elif event == 'Clear':
             my_database.clear_database()
             message_count = my_database.messages.count_documents({})
             database_initialized = False if message_count == 0 else True
             window['-N-ENTRIES-'].update(message_count)
-        if event == 'Opinion':
-            print('good')
+            window['-GUILD-'].update(values=['None'], value='None')
+            window['-CHANNEL-'].update(values=['None'], value='None')
+            window['-MEMBER-'].update(values=['None'], value='None')
+        elif event == 'Opinion':
+            output = opinion.opinion(guild, topic, member, channel, db=my_database)
+            output = emoji.demojize(output)
+            window['-OPINION-'].update(output)
         elif event == 'Sentient':
             # generate output
-            output = sentient.sentient(guild, member, channel, my_database)
+            output = sentient.sentient(guild, member, channel, topic, prompt, my_database)
             print(output)
+            output = "" if output is None else output
             output = emoji.demojize(output)
             try:
                 pyperclip.copy(output)  # try to put output on clipboard
@@ -104,12 +145,21 @@ if __name__ == '__main__':
             window['-SENTIENT-'].update(output)  # show in GUI
         elif event == 'Time Density':
             # generate time density graph
-            # show graph
-            print('___,,.--.,_,.,--.,,__')
+            output = timedensity.timedensity(guild, topic, member, channel, timezone='EST', db=my_database)
+            print(output)
+            output = "" if output is None else output
+            output = emoji.demojize(output)
+            window['-TIMEDENSITY-'].update(output)
             # put image on clipboard
             # give option to save
         elif event == 'Word Cloud':
             # generate word cloud
+            output = my_wordcloud.wordcloud(guild, member, channel, db=my_database)
+            # output= "aw mann"
+            print(output)
+            output = "" if output is None else output
+            output = emoji.demojize(output)
+            window['-WORDCLOUD-'].update(output)
             # show word cloud
             print('oOOoo oOOOo')
             # put image on clipboard
