@@ -19,7 +19,7 @@ sia = vaderSentiment.SentimentIntensityAnalyzer()
 
 
 @component.with_slash_command
-@tanjun.with_str_slash_option('topic', 'topic to check opinion of')
+@tanjun.with_str_slash_option('topic', 'topic to check sentiment on')
 @tanjun.with_channel_slash_option('channel', 'channel to limit opinions to', default=None)
 @tanjun.as_slash_command('rankedopinion', 'Find out what a channel/server thinks of a topic')
 async def rankedopinion(

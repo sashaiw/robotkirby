@@ -32,8 +32,8 @@ def score_to_text(score: float) -> str:
 
 @component.with_slash_command
 @tanjun.with_str_slash_option('topic', 'topic to check sentiment on')
-@tanjun.with_member_slash_option('member', 'user to imitate', default=None)
-@tanjun.with_channel_slash_option('channel', 'channel to imitate', default=None)
+@tanjun.with_member_slash_option('member', 'user to check sentiment on', default=None)
+@tanjun.with_channel_slash_option('channel', 'channel to check sentiment on', default=None)
 @tanjun.as_slash_command('opinion', 'Find out what a member/channel/server thinks of a topic')
 async def opinion(
         ctx: tanjun.abc.Context,
