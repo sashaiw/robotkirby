@@ -10,13 +10,30 @@ import tanjun
 from vaderSentiment import vaderSentiment
 
 from robotkirby.db.db_driver import Database
-from opinion import score_to_text
 
 vaderSentiment.SPECIAL_CASES['based'] = 3
 
 component = tanjun.Component()
 sia = vaderSentiment.SentimentIntensityAnalyzer()
 
+def score_to_text(score: float) -> str:
+    ranges = {
+        'an **extremely negative**': (-1.0, -0.8),
+        'a **strongly negative**': (-0.8, -0.6),
+        'a **moderately negative**': (-0.6, -0.4),
+        'a **somewhat negative**': (-0.4, -0.2),
+        'a **slightly negative**': (-0.2, -0.05),
+        'a **neutral**': (-0.05, 0.05),
+        'a **slightly positive**': (0.05, 0.2),
+        'a **somewhat positive**': (0.2, 0.4),
+        'a **moderately positive**': (0.4, 0.6),
+        'a **strongly positive**': (0.6, 0.8),
+        'an **extremely positive**': (0.8, 1.0),
+    }
+
+    for name, r in ranges.items():
+        if r[0] <= score <= r[1]:
+            return name
 
 @component.with_slash_command
 @tanjun.with_str_slash_option('topic', 'topic to check sentiment on')
