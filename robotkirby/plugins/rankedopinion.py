@@ -63,11 +63,12 @@ async def rankedopinion(
     await ctx.respond(f"Trying to figure out what {prefix_str} thinks about {topic}...")
 
     # get list of active members, sorted by who has posted the most messages in the past month
-    members = [await ctx.rest.fetch_user(x) for x in db.get_active_user_ids()]
+    members = [await ctx.rest.fetch_user(x) for x in db.get_active_user_ids(guild=ctx.guild_id)]
     member_msg_count = {}
     one_month_ago = datetime.datetime.today() - relativedelta(month=1)
-    for m in members:
-        member_msg_count[m] = len(db.get_messages(member=m, since=one_month_ago))
+    for idx, m in enumerate(members):
+        member_msg_count[m] = db.messages.count_documents({"author":  m.id, "time": {"$gte": one_month_ago}})
+        await ctx.edit_initial_response(f'Preprocessing: {100*idx/len(members):.2f}%')
     member_msg_count = collections.OrderedDict(sorted(member_msg_count.items(), key=operator.itemgetter(1)))
     top_members = list(reversed(list(member_msg_count)))
 
@@ -100,15 +101,20 @@ async def rankedopinion(
             score = np.average(compound)
 
         output.append((score, f'{member.mention} `score={score:.4f}` ({score_to_text(score)[2:]})'))
+        final_output = reversed(sorted(output, key=lambda tup: tup[0]))
+        final_output = [f'{idx}. {e[1]}' for idx, e in enumerate(final_output)]
+        final_output = '\n'.join(final_output)
+        await ctx.edit_initial_response(f"{prefix_str}'s opinions on *{topic}*:\n"
+                                        f"{final_output}")
 
     if output is None or len(output) == 0:
         await ctx.edit_initial_response(f"{prefix_str} doesn't have an opinion on *{topic}*")
     else:
-        output = reversed(sorted(output, key=lambda tup: tup[0]))
-        output = [f'{idx}. {e[1]}' for idx, e in enumerate(output)]
-        output = '\n'.join(output)
+        final_output = reversed(sorted(output, key=lambda tup: tup[0]))
+        final_output = [f'{idx}. {e[1]}' for idx, e in enumerate(final_output)]
+        final_output = '\n'.join(final_output)
         await ctx.edit_initial_response(f"{prefix_str}'s opinions on *{topic}*:\n"
-                                        f"{output}")
+                                        f"{final_output}")
 
 
 @tanjun.as_loader

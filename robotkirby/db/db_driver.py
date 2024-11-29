@@ -166,11 +166,15 @@ class Database:
         else:
             return False
 
-    def get_active_user_ids(self) -> list[int]:
-        return [int(user['_id']) for user in self.permissions.find(
+    def get_active_user_ids(self, guild: int = None) -> list[int]:
+        all_user_ids = [int(user['_id']) for user in self.permissions.find(
             {'read_messages': True},
             {'_id': 1, 'read_messages': 0}
         )]
+        if guild is None:
+            return all_user_ids
+        user_ids = self.messages.distinct("author", {"guild": guild})
+        return [u for u in user_ids if u in all_user_ids]
 
     def delete_many(
         self,
