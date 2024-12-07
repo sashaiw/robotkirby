@@ -51,14 +51,17 @@ class Database:
     def _get_filter_dict(
             since: datetime.datetime = None,
             before: datetime.datetime = None,
-            member: hikari.User = None,
+            member: hikari.User | int = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
-            text: str = None
+            text: str = None,
     ) -> dict:
         filter_dict = {}
         if member is not None:
-            filter_dict['author'] = member.id
+            if isinstance(member, hikari.User):
+                filter_dict['author'] = member.id
+            if isinstance(member, int):
+                filter_dict['author'] = member
 
         if guild is not None:
             filter_dict['guild'] = guild
@@ -90,7 +93,7 @@ class Database:
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
-            text: str = None
+            text: str = None,
     ) -> list[str]:
         filter_dict = self._get_filter_dict(
             member=member,
@@ -98,7 +101,7 @@ class Database:
             channel=channel,
             text=text,
             since=since,
-            before=before
+            before=before,
         )
 
         return [msg['content'] for msg in self.messages.find(
@@ -113,7 +116,7 @@ class Database:
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
-            text: str = None
+            text: str = None,
     ) -> list[str]:
         filter_dict = self._get_filter_dict(
             member=member,
@@ -121,7 +124,7 @@ class Database:
             channel=channel,
             text=text,
             since=since,
-            before=before
+            before=before,
         )
 
         return [msg['channel'] for msg in self.messages.find(
@@ -136,7 +139,7 @@ class Database:
             member: hikari.User = None,
             guild: int = None,
             channel: hikari.InteractionChannel = None,
-            text: str = None
+            text: str = None,
     ) -> list[datetime.datetime]:
         filter_dict = self._get_filter_dict(
             member=member,
@@ -144,7 +147,7 @@ class Database:
             channel=channel,
             text=text,
             since=since,
-            before=before
+            before=before,
         )
 
         return [msg['time'] for msg in self.messages.find(
@@ -166,15 +169,30 @@ class Database:
         else:
             return False
 
-    def get_active_user_ids(self, guild: int = None) -> list[int]:
-        all_user_ids = [int(user['_id']) for user in self.permissions.find(
+    def get_all_opted_in_user_ids(self, guild: int = None) -> list[int]:
+        return [int(user['_id']) for user in self.permissions.find(
             {'read_messages': True},
             {'_id': 1, 'read_messages': 0}
         )]
-        if guild is None:
-            return all_user_ids
-        user_ids = self.messages.distinct("author", {"guild": guild})
-        return [u for u in user_ids if u in all_user_ids]
+
+    def get_unique_user_ids(
+        self,
+        guild: int = None,
+        channel: hikari.InteractionChannel = None,
+        since: datetime.datetime = None,
+        before: datetime.datetime = None,
+    ) -> list[int]:
+        filter_dict = self._get_filter_dict(
+            guild=guild,
+            channel=channel,
+            since=since,
+            before=before,
+        )
+
+        return self.messages.distinct(
+            'author',
+            filter_dict,
+        )
 
     def delete_many(
         self,
