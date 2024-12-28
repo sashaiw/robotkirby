@@ -42,8 +42,11 @@ async def similarity(
     await ctx.respond(f"Trying to figure out who is most similar to {f'{member.mention}'}...")
 
     # get list of active members, sorted by who has posted the most messages in the past month (other than the member to be compared)
-    members_ids = db.get_unique_user_ids(guild=ctx.guild_idl)
-    members_ids.remove(member.id)
+    members_ids = db.get_unique_user_ids(guild=ctx.guild_id)
+    try:
+        members_ids.remove(member.id)
+    except ValueError:
+        pass
     member_msg_count = {}
     one_month_ago = datetime.datetime.today() - relativedelta(month=1)
     for idx, m_id in enumerate(members_ids):
