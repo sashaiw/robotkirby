@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.13
 
 WORKDIR /usr/src/app
 
@@ -7,6 +7,6 @@ RUN pip install pip -U
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY robotkirby robotkirby/
+COPY birdbot birdbot/
 
-CMD [ "python3", "-m", "robotkirby" ]
+CMD [ "python3", "-m", "birdbot" ]

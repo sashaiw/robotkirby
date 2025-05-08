@@ -1,0 +1,5 @@
+hikari~=2.3.1
+hikari-tanjun~=2.17.7
+pandas~=2.2.3
+PyMySQL~=1.1.1
+SQLAlchemy~=2.0.40

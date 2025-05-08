@@ -1,5 +1,5 @@
 import hikari
-from robotkirby.bot import build_bot
+from birdbot.bot import build_bot
 
 
 # if os.name != "nt":
