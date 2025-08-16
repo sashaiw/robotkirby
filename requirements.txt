@@ -1,5 +1,5 @@
-hikari
-hikari-tanjun
+hikari==2.0.0
+hikari-tanjun==2.17.7
 pymongo
 markovify
 wordcloud
