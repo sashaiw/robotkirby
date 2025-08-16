@@ -68,7 +68,6 @@ async def rankedopinion(
     one_month_ago = datetime.datetime.today() - relativedelta(month=1)
     for idx, m_id in enumerate(members_ids):
         member_msg_count[m_id] = db.messages.count_documents({"author":  m_id, "time": {"$gte": one_month_ago}})
-        await ctx.edit_initial_response(f'Preprocessing: {idx/len(members_ids):.2%}')
     member_msg_count = collections.OrderedDict(sorted(member_msg_count.items(), key=operator.itemgetter(1)))
     top_members = list(reversed(list(member_msg_count)))
 
@@ -102,11 +101,6 @@ async def rankedopinion(
 
         member = await ctx.rest.fetch_user(member_id)
         output.append((score, f'{member.mention} `score={score:.4f}` ({score_to_text(score)[2:]})'))
-        final_output = reversed(sorted(output, key=lambda tup: tup[0]))
-        final_output = [f'{idx}. {e[1]}' for idx, e in enumerate(final_output)]
-        final_output = '\n'.join(final_output)
-        await ctx.edit_initial_response(f"{prefix_str}'s opinions on *{topic}*:\n"
-                                        f"{final_output}")
 
     if output is None or len(output) == 0:
         await ctx.edit_initial_response(f"{prefix_str} doesn't have an opinion on *{topic}*")
