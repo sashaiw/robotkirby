@@ -3,3 +3,7 @@
 .venv/
 __pycache__/
 .idea
+*.egg-info/
+
+.py[cod]
+*$py.class
