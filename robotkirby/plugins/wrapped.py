@@ -32,7 +32,7 @@ async def wrapped(
         return
 
     # members = [await ctx.rest.fetch_user(x) for x in [89398547308380160, 89398547308380160, 89398547308380160]]
-    members = [await ctx.rest.fetch_user(x) for x in db.get_active_user_ids()]
+    members = [await ctx.rest.fetch_user(x) for x in db.get_all_opted_in_user_ids()]
     await ctx.respond(f"Deploying Robot Kirby Wrapped to {len(members)} users.")
 
     for member in members:
