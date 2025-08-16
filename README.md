@@ -6,7 +6,7 @@ Robot Kirby uses [Hikari](https://github.com/hikari-py/hikari) and [Tanjun](http
 for interacting with the Discord API, [MongoDB](https://www.mongodb.com/) as a database, and 
 [Markovify](https://github.com/jsvine/markovify) for the Markov chain model.
 
-Credit to [Amelia](https://github.com/a-sinclaire) for the idea for the `/timedensity` command!
+Credit to [Amelia](https://github.com/a-sinclaire) for the idea for the `/timedensity` command! The `/rankedopinion` command was written by [Amelia](https://github.com/a-sinclaire) and the `/similarity` command was written by [Jenna](https://github.com/jemi622).
 
 ## How to run
 
