@@ -33,6 +33,7 @@ def make_client(bot: hikari.GatewayBot) -> tanjun.Client:
     client.load_modules('robotkirby.plugins.opinion')
     client.load_modules('robotkirby.plugins.timedensity')
     client.load_modules('robotkirby.plugins.rankedopinion')
+    client.load_modules('robotkirby.plugins.similarity')
     # client.load_modules('robotkirby.plugins.wrapped')
 
     return client
