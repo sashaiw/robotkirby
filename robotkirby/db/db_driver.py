@@ -1,16 +1,21 @@
 import datetime
 import os
+from typing import Any, Optional
 
 import hikari
 from pymongo import TEXT, MongoClient
+from pymongo.collection import Collection
+from pymongo.database import Database as PyMongoDatabase
 
 
 class Database:
     def __init__(self):
-        self.client = MongoClient(os.environ.get("MONGO_URI"))
-        self.db = self.client.kirby
-        self.messages = self.db.messages
-        self.permissions = self.db.permissions
+        self.client: MongoClient[dict[str, Any]] = MongoClient(
+            os.environ.get("MONGO_URI")
+        )
+        self.db: PyMongoDatabase[dict[str, Any]] = self.client.kirby
+        self.messages: Collection[dict[str, Any]] = self.db.messages
+        self.permissions: Collection[dict[str, Any]] = self.db.permissions
 
         # create compound index with `guild` as the prefix since we will always include this
         # efficient for [guild], [guild, author], [guild, author, channel]
@@ -47,14 +52,14 @@ class Database:
 
     @staticmethod
     def _get_filter_dict(
-        since: datetime.datetime = None,
-        before: datetime.datetime = None,
-        member: hikari.User | int = None,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        text: str = None,
-    ) -> dict:
-        filter_dict = {}
+        since: Optional[datetime.datetime] = None,
+        before: Optional[datetime.datetime] = None,
+        member: Optional[hikari.User | int] = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        text: Optional[str] = None,
+    ) -> dict[str, Any]:
+        filter_dict: dict[str, Any] = {}
         if member is not None:
             if isinstance(member, hikari.User):
                 filter_dict["author"] = member.id
@@ -70,28 +75,24 @@ class Database:
         if text is not None:
             filter_dict["$text"] = {"$search": text}
 
+        time_filter: dict[str, Any] = {}
         if since is not None:
-            if "time" in filter_dict:
-                filter_dict["time"].append({"$gte": since})
-            else:
-                filter_dict["time"] = {"$gte": since}
-
+            time_filter["$gte"] = since
         if before is not None:
-            if "time" in filter_dict:
-                filter_dict["time"].append({"$lt": before})
-            else:
-                filter_dict["time"] = {"$lt": before}
+            time_filter["$lt"] = before
+        if time_filter:
+            filter_dict["time"] = time_filter
 
         return filter_dict
 
     def get_messages(
         self,
-        since: datetime.datetime = None,
-        before: datetime.datetime = None,
-        member: hikari.User = None,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        text: str = None,
+        since: Optional[datetime.datetime] = None,
+        before: Optional[datetime.datetime] = None,
+        member: Optional[hikari.User | int] = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        text: Optional[str] = None,
     ) -> list[str]:
         filter_dict = self._get_filter_dict(
             member=member,
@@ -109,13 +110,13 @@ class Database:
 
     def get_channels(
         self,
-        since: datetime.datetime = None,
-        before: datetime.datetime = None,
-        member: hikari.User = None,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        text: str = None,
-    ) -> list[str]:
+        since: Optional[datetime.datetime] = None,
+        before: Optional[datetime.datetime] = None,
+        member: Optional[hikari.User | int] = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        text: Optional[str] = None,
+    ) -> list[int]:
         filter_dict = self._get_filter_dict(
             member=member,
             guild=guild,
@@ -132,12 +133,12 @@ class Database:
 
     def get_timestamps(
         self,
-        since: datetime.datetime = None,
-        before: datetime.datetime = None,
-        member: hikari.User = None,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        text: str = None,
+        since: Optional[datetime.datetime] = None,
+        before: Optional[datetime.datetime] = None,
+        member: Optional[hikari.User | int] = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        text: Optional[str] = None,
     ) -> list[datetime.datetime]:
         filter_dict = self._get_filter_dict(
             member=member,
@@ -165,7 +166,7 @@ class Database:
         else:
             return False
 
-    def get_all_opted_in_user_ids(self, guild: int = None) -> list[int]:
+    def get_all_opted_in_user_ids(self, guild: Optional[int] = None) -> list[int]:
         return [
             int(user["_id"])
             for user in self.permissions.find(
@@ -175,10 +176,10 @@ class Database:
 
     def get_unique_user_ids(
         self,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        since: datetime.datetime = None,
-        before: datetime.datetime = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        since: Optional[datetime.datetime] = None,
+        before: Optional[datetime.datetime] = None,
     ) -> list[int]:
         filter_dict = self._get_filter_dict(
             guild=guild,
@@ -187,17 +188,15 @@ class Database:
             before=before,
         )
 
-        return self.messages.distinct(
-            "author",
-            filter_dict,
-        )
+        vals = list(self.messages.distinct("author", filter_dict))
+        return [int(v) for v in vals]
 
     def delete_many(
         self,
-        member: hikari.User = None,
-        guild: int = None,
-        channel: hikari.InteractionChannel = None,
-        text: str = None,
+        member: Optional[hikari.User] = None,
+        guild: Optional[int] = None,
+        channel: Optional[hikari.InteractionChannel] = None,
+        text: Optional[str] = None,
     ) -> int:
         filter_dict = self._get_filter_dict(
             member=member, guild=guild, channel=channel, text=text

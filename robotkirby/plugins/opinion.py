@@ -1,4 +1,4 @@
-import typing
+from typing import Optional
 
 import hikari
 import numpy as np
@@ -31,6 +31,7 @@ def score_to_text(score: float) -> str:
     for name, r in ranges.items():
         if r[0] <= score <= r[1]:
             return name
+    return "a **neutral**"
 
 
 @component.with_slash_command
@@ -45,8 +46,8 @@ def score_to_text(score: float) -> str:
 async def opinion(
     ctx: tanjun.abc.Context,
     topic: str,
-    member: typing.Optional[hikari.Member],
-    channel: typing.Optional[hikari.InteractionChannel],
+    member: Optional[hikari.Member],
+    channel: Optional[hikari.InteractionChannel],
     db: Database = tanjun.inject(type=Database),
 ) -> None:
     if not db.check_read_permission(ctx.author):
@@ -56,9 +57,11 @@ async def opinion(
             ":heart:"
         )
         return
+    guild = ctx.get_guild()
+    guild_name = guild.name if guild is not None else "this server"
     match (member, channel):
         case (None, None):
-            prefix_str = f"**{ctx.get_guild().name}**"
+            prefix_str = f"**{guild_name}**"
         case (hikari.Member(), None):
             prefix_str = f"{member.mention}"
         case (None, hikari.InteractionChannel()):
@@ -76,16 +79,14 @@ async def opinion(
     )
 
     if messages is not None and len(messages) > 0:
-        scores = np.array([sia.polarity_scores(m) for m in messages])
+        scores_list = [sia.polarity_scores(m) for m in messages]
+        compound = np.asarray([s["compound"] for s in scores_list], dtype=float)
+        neu = np.asarray([s["neu"] for s in scores_list], dtype=float)
 
-        compound = np.asarray([s["compound"] for s in scores])
-        neu = np.asarray([s["neu"] for s in scores])
-
-        # weight neutral scores less, opinionated scores more
         try:
-            score = np.average(compound, weights=1 - neu)
+            score = float(np.average(compound, weights=1 - neu))
         except ZeroDivisionError:
-            score = np.average(compound)
+            score = float(np.average(compound))
 
         await ctx.edit_initial_response(
             f"{prefix_str} has {score_to_text(score)} opinion of *{topic}*.\n"

@@ -1,6 +1,6 @@
 import io
-import typing
 from datetime import datetime
+from typing import Optional
 
 import hikari
 import matplotlib.ticker as ticker
@@ -30,10 +30,17 @@ utc_tz = tz.tzutc()
 # local_tz = tz.tzlocal()
 
 
-def make_prefix_str(ctx, member, channel, topic):
+def make_prefix_str(
+    ctx: tanjun.abc.Context,
+    member: Optional[hikari.Member],
+    channel: Optional[hikari.InteractionChannel],
+    topic: Optional[str],
+) -> str:
+    guild = ctx.get_guild()
+    guild_name = guild.name if guild is not None else "this server"
     match (member, channel, topic):
         case (None, None, None):
-            return f"in **{ctx.get_guild().name}**"
+            return f"in **{guild_name}**"
         case (hikari.Member(), None, None):
             return f"by {member.mention}"
         case (None, hikari.InteractionChannel(), None):
@@ -41,7 +48,7 @@ def make_prefix_str(ctx, member, channel, topic):
         case (hikari.Member(), hikari.InteractionChannel(), None):
             return f"{member.mention} in {channel.mention}"
         case (None, None, str()):
-            return f"in **{ctx.get_guild().name}** about *{topic}*"
+            return f"in **{guild_name}** about *{topic}*"
         case (hikari.Member(), None, str()):
             return f"by {member.mention} about *{topic}*"
         case (None, hikari.InteractionChannel(), str()):
@@ -49,7 +56,7 @@ def make_prefix_str(ctx, member, channel, topic):
         case (hikari.Member(), hikari.InteractionChannel(), str()):
             return f"in {member.mention} in {channel.mention} about *{topic}*"
         case _:
-            return None
+            return f"in **{guild_name}**"
 
 
 def utc_to_local(dt: datetime, tz_code: str) -> datetime:
@@ -75,10 +82,10 @@ def dt_to_sec(dt: datetime) -> int:
 )
 async def timedensity(
     ctx: tanjun.abc.Context,
-    topic: typing.Optional[str],
-    member: typing.Optional[hikari.Member],
-    channel: typing.Optional[hikari.InteractionChannel],
-    timezone: typing.Optional[str],
+    topic: Optional[str],
+    member: Optional[hikari.Member],
+    channel: Optional[hikari.InteractionChannel],
+    timezone: Optional[str],
     db: Database = tanjun.inject(type=Database),
 ) -> None:
     if not db.check_read_permission(ctx.author):
@@ -93,7 +100,8 @@ async def timedensity(
 
     await ctx.respond(f"Thinking about posts {prefix_str}...")
 
-    if tz.gettz(timezone) is None:
+    tz_code: str = timezone or "EST"
+    if tz.gettz(tz_code) is None:
         await ctx.edit_initial_response(f"***{timezone}*** is not a valid timezone!")
         return
 
@@ -103,7 +111,7 @@ async def timedensity(
 
     if timestamps is not None and len(timestamps) > 0:
         df = pd.DataFrame(
-            [dt_to_sec(utc_to_local(t, timezone)) for t in timestamps], columns=["time"]
+            {"time": [dt_to_sec(utc_to_local(t, tz_code)) for t in timestamps]}
         )
 
         img = io.BytesIO()
@@ -118,7 +126,7 @@ async def timedensity(
             aspect=2,
         )
 
-        graph.ax.set(xlabel=f"Time ({timezone})")
+        graph.ax.set(xlabel=f"Time ({tz_code})")
         graph.ax.set(title="")
         graph.ax.set_xlim(0, 86400)
         graph.ax.xaxis.set_major_locator(ticker.MultipleLocator(7200))

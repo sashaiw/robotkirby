@@ -1,9 +1,9 @@
 import io
 import re
-import typing
 
 # The wordcloud library spams DeprecationWarnings, might want to find a solution eventually
 import warnings
+from typing import Optional
 
 import hikari
 import tanjun
@@ -26,8 +26,8 @@ component = tanjun.Component()
 @tanjun.as_slash_command("wordcloud", "Create wordcloud for server/member/channel")
 async def wordcloud(
     ctx: tanjun.abc.Context,
-    member: typing.Optional[hikari.Member],
-    channel: typing.Optional[hikari.InteractionChannel],
+    member: Optional[hikari.Member],
+    channel: Optional[hikari.InteractionChannel],
     db: Database = tanjun.inject(type=Database),
 ) -> None:
     if not db.check_read_permission(ctx.author):
@@ -38,9 +38,11 @@ async def wordcloud(
         )
         return
 
+    guild = ctx.get_guild()
+    guild_name = guild.name if guild is not None else "this server"
     match (member, channel):
         case (None, None):
-            prefix_str = f"**{ctx.get_guild().name}**"
+            prefix_str = f"**{guild_name}**"
         case (hikari.Member(), None):
             prefix_str = f"{member.mention}"
         case (None, hikari.InteractionChannel()):

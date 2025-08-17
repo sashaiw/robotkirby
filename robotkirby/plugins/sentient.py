@@ -1,5 +1,5 @@
 import re
-import typing
+from typing import Optional
 
 import hikari
 import markovify
@@ -28,10 +28,10 @@ component = tanjun.Component()
 @tanjun.as_slash_command("sentient", "Imitate user")
 async def sentient(
     ctx: tanjun.abc.Context,
-    member: typing.Optional[hikari.Member],
-    channel: typing.Optional[hikari.InteractionChannel],
-    topic: typing.Optional[str],
-    prompt: typing.Optional[str],
+    member: Optional[hikari.Member],
+    channel: Optional[hikari.InteractionChannel],
+    topic: Optional[str],
+    prompt: Optional[str],
     db: Database = tanjun.inject(type=Database),
 ) -> None:
     if not db.check_read_permission(ctx.author):
@@ -42,9 +42,11 @@ async def sentient(
         )
         return
 
+    guild = ctx.get_guild()
+    guild_name = guild.name if guild is not None else "this server"
     match (member, channel, topic):
         case (None, None, None):
-            prefix_str = f"**{ctx.get_guild().name}**"
+            prefix_str = f"**{guild_name}**"
         case (hikari.Member(), None, None):
             prefix_str = f"{member.mention}"
         case (None, hikari.InteractionChannel(), None):
@@ -52,7 +54,7 @@ async def sentient(
         case (hikari.Member(), hikari.InteractionChannel(), None):
             prefix_str = f"{member.mention} in {channel.mention}"
         case (None, None, str()):
-            prefix_str = f"**{ctx.get_guild().name}** about *{topic}*"
+            prefix_str = f"**{guild_name}** about *{topic}*"
         case (hikari.Member(), None, str()):
             prefix_str = f"{member.mention} about *{topic}*"
         case (None, hikari.InteractionChannel(), str()):
@@ -78,25 +80,26 @@ async def sentient(
 
     if messages is not None and len(messages) > 0:
         model = markovify.Text(messages, state_size=state_size)  # build markov model
-
         # if no prompt given generate like normal
         if prompt is None or len(prompt) == 0:
             sentence = model.make_sentence(tries=n_tries)
         else:
-            prefix = []
+            prefix: list[str] = []
             prompt_split = word_split(prompt)
             while len(prompt_split) > state_size:
                 prefix.append(prompt_split.pop(0))
             prompt = " ".join(prompt_split)
 
             try:
-                markov = model.make_sentence_with_start(beginning=prompt, tries=n_tries)
+                markov = model.make_sentence_with_start(
+                    beginning=prompt, tries=n_tries
+                )
             except Exception:
                 markov = None
 
             if markov is not None:
-                prefix = f"{' '.join(prefix)} " if len(prefix) != 0 else ""
-                sentence = f"{prefix}{markov}"
+                prefix_joined = f"{' '.join(prefix)} " if len(prefix) != 0 else ""
+                sentence = f"{prefix_joined}{markov}"
 
     if sentence is not None:
         await ctx.edit_initial_response(f"{prefix_str}:\n{sentence}")

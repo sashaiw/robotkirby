@@ -25,6 +25,7 @@ def score_to_text(score: float) -> str:
     for name, r in ranges.items():
         if r[0] <= score <= r[1]:
             return name
+    return "a **slightly similar**"
 
 
 @component.with_slash_command
@@ -70,7 +71,7 @@ async def similarity(
     )
 
     # get top ten member's similarity to the member to be compared
-    output = []
+    output: list[tuple[float, str]] = []
     for member_id in top_members:
         # once we have 10 (or we go through all the members we got) break
         if len(output) >= 10:

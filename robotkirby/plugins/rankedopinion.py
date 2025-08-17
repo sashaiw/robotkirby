@@ -1,7 +1,7 @@
 import collections
 import datetime
 import operator
-import typing
+from typing import List, Optional, Tuple
 
 import hikari
 import numpy as np
@@ -35,6 +35,7 @@ def score_to_text(score: float) -> str:
     for name, r in ranges.items():
         if r[0] <= score <= r[1]:
             return name
+    return "a **neutral**"
 
 
 @component.with_slash_command
@@ -48,7 +49,7 @@ def score_to_text(score: float) -> str:
 async def rankedopinion(
     ctx: tanjun.abc.Context,
     topic: str,
-    channel: typing.Optional[hikari.InteractionChannel],
+    channel: Optional[hikari.InteractionChannel],
     db: Database = tanjun.inject(type=Database),
 ) -> None:
     if not db.check_read_permission(ctx.author):
@@ -59,9 +60,11 @@ async def rankedopinion(
         )
         return
 
+    guild = ctx.get_guild()
+    guild_name = guild.name if guild is not None else "this server"
     match channel:
         case None:
-            prefix_str = f"**{ctx.get_guild().name}**"
+            prefix_str = f"**{guild_name}**"
         case hikari.InteractionChannel():
             prefix_str = f"{channel.mention}"
         case _:
@@ -85,7 +88,7 @@ async def rankedopinion(
     top_members = list(reversed(list(member_msg_count)))
 
     # get top ten member's opinions on topic
-    output = []
+    output: List[Tuple[float, str]] = []
     for member_id in top_members:
         # once we have 10 (or we go through all the members we got) break
         if len(output) >= 10:
@@ -98,22 +101,21 @@ async def rankedopinion(
         if messages is None or len(messages) == 0:
             continue
 
-        scores = np.array([sia.polarity_scores(m) for m in messages])
+        # weigh neutral scores less, opinionated scores more
+        scores_list = [sia.polarity_scores(m) for m in messages]
+        compound = np.asarray([s["compound"] for s in scores_list], dtype=float)
+        neu = np.asarray([s["neu"] for s in scores_list], dtype=float)
 
-        compound = np.asarray([s["compound"] for s in scores])
-        neu = np.asarray([s["neu"] for s in scores])
-
-        # weight neutral scores less, opinionated scores more
         try:
-            score = np.average(compound, weights=1 - neu)
+            score = float(np.average(compound, weights=1 - neu))
         except ZeroDivisionError:
-            score = np.average(compound)
+            score = float(np.average(compound))
 
         member = await ctx.rest.fetch_user(member_id)
         output.append(
             (
-                score,
-                f"{member.mention} `score={score:.4f}` ({score_to_text(score)[2:]})",
+                float(score),
+                f"{member.mention} `score={float(score):.4f}` ({score_to_text(float(score))[2:]})",
             )
         )
         final_output = reversed(sorted(output, key=lambda tup: tup[0]))

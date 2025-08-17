@@ -3,6 +3,7 @@ import datetime
 import io
 import re
 import time
+from typing import List, Tuple
 
 import hikari
 import nltk
@@ -65,7 +66,7 @@ async def wrapped(
                 )
 
                 # tokenize
-                tokens = []
+                tokens: list[str] = []
                 stopwords = nltk.corpus.stopwords.words("english")
                 for message in messages:
                     tokens += [
@@ -78,19 +79,23 @@ async def wrapped(
 
                 # frequency distribution
                 fdist = nltk.FreqDist(nltk.ngrams(tokens, 1))
-                most_common = fdist.most_common(5)
+                most_common: List[Tuple[Tuple[str, ...], int]] = fdist.most_common(5)
 
                 # channel frequency distribution
-                channel_freq = collections.Counter(channels)
-                most_common_channels = channel_freq.most_common(5)
+                channel_freq: collections.Counter[int] = collections.Counter(channels)
+                most_common_channels: List[Tuple[int, int]] = channel_freq.most_common(
+                    5
+                )
 
                 # detect profanity
                 profanity = profanity_check.predict(messages)
                 profanity_score = np.count_nonzero(profanity) / profanity.size
 
                 # positivity
-                sentiment = np.array([sia.polarity_scores(m) for m in messages])
-                sentiment_compound = np.asarray([s["compound"] for s in sentiment])
+                sentiment = [sia.polarity_scores(m) for m in messages]
+                sentiment_compound = np.asarray(
+                    [s["compound"] for s in sentiment], dtype=float
+                )
                 # sentiment_neu = np.asarray([s['neu'] for s in sentiment])
                 # sentiment_pos = np.asarray([s['pos'] for s in sentiment])
                 # sentiment_neg = np.asarray([s['neg'] for s in sentiment])
