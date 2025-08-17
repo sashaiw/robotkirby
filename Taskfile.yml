@@ -21,3 +21,7 @@ tasks:
   fix:
     cmds:
       - uv run ruff check --fix robotkirby
+
+  run:
+    cmds:
+      - uv run robotkirby/__main__.py

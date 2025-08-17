@@ -24,14 +24,14 @@ Then, start the Docker containers:
 - Required scopes: `bot`, `applications.commands`.
 - Gateway intents (Developer Portal → Bot → Privileged Gateway Intents):
   - Message Content
+  - Presence
+  - Server Members
 - Guild permissions (when inviting):
   - View Channels
   - Send Messages
   - Attach Files
   - Embed Links
   - Read Message History
-
-When generating the invite link, include the scopes above and select the listed permissions, or use the Discord Developer Portal’s permission builder.
 
 ## CI & Local Checks
 
@@ -44,11 +44,10 @@ You can run the same checks locally with `uv`.
 
 ### Install uv
 
-`uv` is a fast Python package and environment manager from Astral. Pick one method:
+`uv` is a fast Python package and environment manager from Astral.
 
 - macOS/Linux (script): `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - macOS (Homebrew): `brew install uv`
-- Windows (PowerShell): `irm https://astral.sh/uv/install.ps1 | iex`
 
 After installing, restart your shell so `uv` is on your `PATH`.
 
@@ -67,8 +66,7 @@ From the repo root:
 
 1) Create a virtual environment: `uv venv`
 
-2) Activate it:
-   - macOS/Linux: `source .venv/bin/activate`
+2) Activate it: `source .venv/bin/activate`
 
 3) Install dependencies (including dev tools like Ruff and Pyright):
    - `uv sync --group dev`

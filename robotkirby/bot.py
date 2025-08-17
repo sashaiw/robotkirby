@@ -8,7 +8,10 @@ from robotkirby.db.db_driver import Database
 
 def build_bot() -> hikari.GatewayBot:
     token = os.environ.get("DISCORD_TOKEN")
-    bot = hikari.GatewayBot(token, intents=hikari.Intents.ALL)
+    intents = hikari.Intents.GUILD_MESSAGES | hikari.Intents.GUILD_MEMBERS
+    if token is None:
+        raise ValueError("DISCORD_TOKEN environment variable is not set")
+    bot = hikari.GatewayBot(token, intents=intents)
 
     make_client(bot)
 
