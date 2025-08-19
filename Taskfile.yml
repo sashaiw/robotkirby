@@ -1,0 +1,27 @@
+version: 3
+
+dotenv:
+  - .env
+
+tasks:
+  format:
+    cmds:
+      - ruff format
+      - ruff check --fix
+
+  lint:
+    cmds:
+      - ruff check
+      - UV_CACHE_DIR=.uv-cache uv run pyright
+
+  typecheck:
+    cmds:
+      - UV_CACHE_DIR=.uv-cache uv run pyright
+
+  fix:
+    cmds:
+      - uv run ruff check --fix robotkirby
+
+  run:
+    cmds:
+      - uv run robotkirby/__main__.py

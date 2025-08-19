@@ -1,0 +1,39 @@
+# VCS
+.git
+.gitignore
+
+# Env/Secrets
+.env
+
+# OS
+.DS_Store
+
+# Python: bytecode and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# Virtual environments and caches
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.pytest_cache/
+.uv-cache/
+.coverage
+htmlcov/
+
+# Misc build dirs
+build/
+dist/
+site-packages/
+
+# Project-specific
+robotkirby.egg-info/
+

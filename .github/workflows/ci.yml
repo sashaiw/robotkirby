@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  format-and-typecheck:
+    name: Format and Typecheck
+    runs-on: ubuntu-latest
+    env:
+      UV_CACHE_DIR: .uv-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          use-cache: true
+
+      - name: Cache uv downloads
+        uses: actions/cache@v4
+        with:
+          path: ./.uv-cache
+          key: uv-cache-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+          restore-keys: uv-cache-${{ runner.os }}-
+
+      - name: Format (ruff) and autofix lint
+        run: |
+          uv run ruff format
+          uv run ruff check
+
+      - name: Typecheck (pyright)
+        run: uv run pyright
